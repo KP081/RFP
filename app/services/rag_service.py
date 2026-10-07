@@ -12,17 +12,14 @@ class RAGService:
         question: str,
         rfp_id: str | None = None,
         top_k: int = 5,
-        score_threshold: float | None = None
+        score_threshold: float | None = None,
     ) -> dict:
         if not question.strip():
             raise ValueError("Question cannot be empty.")
 
         # 1. Retrieve relevant chunks
         results = self.retrieval_service.search(
-            query=question,
-            rfp_id=rfp_id,
-            top_k=top_k,
-            score_threshold=score_threshold
+            query=question, rfp_id=rfp_id, top_k=top_k, score_threshold=score_threshold
         )
 
         if not results:

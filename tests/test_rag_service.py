@@ -10,10 +10,7 @@ def test_rag_answer():
     question = "What are the eligibility requirements for the consultant?"
 
     result = service.answer(
-        question=question,
-        rfp_id=RFP_ID,
-        top_k=5,
-        score_threshold=0.50
+        question=question, rfp_id=RFP_ID, top_k=5, score_threshold=0.50
     )
 
     print("\n\n===== FINAL ANSWER =====")
@@ -30,6 +27,7 @@ def test_rag_answer():
 
     assert result["answer"]
     assert result["sources"]
+
 
 def test_rag_rejects_unrelated_question():
     service = RAGService()
