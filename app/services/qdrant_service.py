@@ -73,6 +73,7 @@ class QdrantService:
         query_vector: list[float],
         limit: int = 5,
         rfp_id: str | None = None,
+        score_threshold: float | None = None,
     ) -> list[dict]:
         query_filter = None
 
@@ -91,6 +92,7 @@ class QdrantService:
             query=query_vector,
             query_filter=query_filter,
             limit=limit,
+            score_threshold=score_threshold,
             with_payload=True,
         )
 

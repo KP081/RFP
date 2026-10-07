@@ -12,6 +12,7 @@ class RAGService:
         question: str,
         rfp_id: str | None = None,
         top_k: int = 5,
+        score_threshold: float | None = None
     ) -> dict:
         if not question.strip():
             raise ValueError("Question cannot be empty.")
@@ -21,6 +22,7 @@ class RAGService:
             query=question,
             rfp_id=rfp_id,
             top_k=top_k,
+            score_threshold=score_threshold
         )
 
         if not results:
