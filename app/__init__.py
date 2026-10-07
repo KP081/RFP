@@ -1,0 +1,1 @@
+from modulefinder import Module
