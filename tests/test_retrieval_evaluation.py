@@ -111,35 +111,17 @@ def test_retrieval_evaluation():
             top_k=5,
         )
 
-        retrieved_pages = [
-            result["page_number"]
-            for result in results
-        ]
+        retrieved_pages = [result["page_number"] for result in results]
 
-        hit1 = any(
-            page in expected_pages
-            for page in retrieved_pages[:1]
-        )
+        hit1 = any(page in expected_pages for page in retrieved_pages[:1])
 
-        hit2 = any(
-            page in expected_pages
-            for page in retrieved_pages[:2]
-        )
+        hit2 = any(page in expected_pages for page in retrieved_pages[:2])
 
-        hit3 = any(
-            page in expected_pages
-            for page in retrieved_pages[:3]
-        )
-        
-        hit4 = any(
-            page in expected_pages
-            for page in retrieved_pages[:4]
-        )
-        
-        hit5 = any(
-            page in expected_pages
-            for page in retrieved_pages[:5]
-        )
+        hit3 = any(page in expected_pages for page in retrieved_pages[:3])
+
+        hit4 = any(page in expected_pages for page in retrieved_pages[:4])
+
+        hit5 = any(page in expected_pages for page in retrieved_pages[:5])
 
         hit_at_1 += hit1
         hit_at_2 += hit2

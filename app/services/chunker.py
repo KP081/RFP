@@ -10,6 +10,50 @@ class DocumentChunk:
     metadata: dict
 
 
+def split_text(
+    text: str,
+    chunk_size: int,
+    chunk_overlap: int,
+) -> list[tuple[str, int, int]]:
+    chunks = []
+
+    start = 0
+    text_length = len(text)
+
+    while start < text_length:
+        end = min(start + chunk_size, text_length)
+
+        if end < text_length:
+            paragraph_break = text.rfind("\n\n", start, end)
+
+            if paragraph_break > start + chunk_size // 2:
+                end = paragraph_break
+
+        chunk_text = text[start:end].strip()
+
+        if chunk_text:
+            actual_start = start
+            actual_end = end
+
+            chunks.append(
+                (
+                    chunk_text,
+                    actual_start,
+                    actual_end,
+                )
+            )
+
+        if end >= text_length:
+            break
+
+        start = max(
+            end - chunk_overlap,
+            start + 1,
+        )
+
+    return chunks
+
+
 def chunk_pages(
     pages: list[DocumentPage],
     chunk_size: int = 2000,
@@ -33,39 +77,25 @@ def chunk_pages(
         if not text:
             continue
 
-        start = 0
-        text_length = len(text)
+        page_chunks = split_text(
+            text=text,
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+        )
 
-        while start < text_length:
-            end = min(start + chunk_size, text_length)
-
-            # Prefer ending at a paragraph boundary.
-            if end < text_length:
-                paragraph_break = text.rfind("\n\n", start, end)
-
-                if paragraph_break > start + chunk_size // 2:
-                    end = paragraph_break
-
-            chunk = text[start:end].strip()
-
-            if chunk:
-                chunks.append(
-                    DocumentChunk(
-                        chunk_id=chunk_id,
-                        text=chunk,
-                        metadata={
-                            "page_number": page.page_number,
-                            "start": start,
-                            "end": end,
-                        },
-                    )
+        for chunk_text, start, end in page_chunks:
+            chunks.append(
+                DocumentChunk(
+                    chunk_id=chunk_id,
+                    text=chunk_text,
+                    metadata={
+                        "page_number": page.page_number,
+                        "start": start,
+                        "end": end,
+                    },
                 )
+            )
 
-                chunk_id += 1
-
-            if end >= text_length:
-                break
-
-            start = max(end - chunk_overlap, start + 1)
+            chunk_id += 1
 
     return chunks

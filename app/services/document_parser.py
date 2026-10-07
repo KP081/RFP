@@ -19,13 +19,12 @@ def extract_pages_from_pdf(file_path: Path) -> list[DocumentPage]:
     for page_number, page in enumerate(reader.pages, start=1):
         text = page.extract_text() or ""
 
-        if text.strip():
-            pages.append(
-                DocumentPage(
-                    page_number=page_number,
-                    text=text.strip(),
-                )
+        pages.append(
+            DocumentPage(
+                page_number=page_number,
+                text=text.strip(),
             )
+        )
 
     return pages
 
