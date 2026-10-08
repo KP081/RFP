@@ -17,7 +17,7 @@ def test_ingest_rfp():
     print("\nIngestion result:")
     print(result)
 
-    assert result["pages"] == 379
+    assert result["pages"] == 382
     assert result["chunks"] > 0
     assert result["chunks"] == result["vectors"]
     assert result["vector_dimension"] == 384

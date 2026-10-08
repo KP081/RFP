@@ -5,6 +5,9 @@ from app.services.document_parser import extract_pages
 from app.services.embeddings import EmbeddingService
 from app.services.qdrant_service import QdrantService
 
+CHUNK_SIZE = 1000
+CHUNK_OVERLAP = 150
+
 
 class IngestionService:
     def __init__(self):
@@ -24,7 +27,7 @@ class IngestionService:
             raise ValueError("No text could be extracted from the document.")
 
         # 2. Convert pages into chunks
-        chunks = chunk_pages(pages)
+        chunks = chunk_pages(pages, chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
 
         if not chunks:
             raise ValueError("No chunks were created from the document.")

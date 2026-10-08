@@ -113,5 +113,7 @@ class QdrantService:
             collection_name=self.collection_name,
             exact=True,
         )
-
         return result.count
+
+    def delete_collection(self, collection_name: str) -> None:
+        self.client.delete_collection(collection_name=collection_name)

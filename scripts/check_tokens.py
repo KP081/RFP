@@ -6,10 +6,10 @@ from app.services.embeddings import EmbeddingService
 
 PDF = Path("uploads/cef53ab4-84a8-407d-aef7-176f7926b306.pdf")
 
-chunks = chunk_pages(extract_pages(PDF))   
+chunks = chunk_pages(extract_pages(PDF))
 
 model = EmbeddingService().model
-limit = model.max_seq_length               # MiniLM: 256
+limit = model.max_seq_length  # MiniLM: 256
 tokenizer = model.tokenizer
 
 counts = [

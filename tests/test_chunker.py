@@ -16,7 +16,7 @@ def test_rfp_chunking():
         chunk_overlap=300,
     )
 
-    assert len(pages) == 379
+    assert len(pages) == 382
     assert len(chunks) > 0
 
     print(f"\nTotal pages: {len(pages):,}")

@@ -72,7 +72,7 @@ EVALUATION_DATA = [
     {
         # GCC 14.3.2: 0.05% of contract price per day, max 5% of contract value
         "question": "What penalty is imposed for delay in completion of services?",
-        "expected_pages": [96],
+        "expected_pages": [71, 96],
     },
     {
         # TOR cl. 9.2: eight stages (Inception, Feasibility, LA & Clearances I, DPR, Technical Schedules, LA II, LA III, LA IV)

@@ -10,4 +10,4 @@ for number in [14, 78, 282]:
     print(f"page {number}: {len(text)} chars")
     print(r"count of \n\n :", text.count("\n\n"))
     print(r"count of \n   :", text.count("\n"))
-    print(repr(text[:600]))     
+    print(repr(text[:600]))
