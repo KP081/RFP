@@ -4,7 +4,7 @@ from pathlib import Path
 from app.services.document_parser import extract_pages
 
 PDF = Path("uploads/cef53ab4-84a8-407d-aef7-176f7926b306.pdf")
-DOT_LEADER = re.compile(r"\.{5,}")      # with 5+ dots
+DOT_LEADER = re.compile(r"\.{5,}")  # with 5+ dots
 
 rows = []
 for page in extract_pages(PDF):

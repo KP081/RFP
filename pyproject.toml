@@ -15,7 +15,6 @@ dependencies = [
     "python-docx>=1.2.0",
     "python-multipart>=0.0.32",
     "qdrant-client>=1.19.1",
-    "ruff>=0.16.10",
     "sentence-transformers>=6.1.0",
     "uvicorn>=0.54.0",
 ]
@@ -30,6 +29,7 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
+    "ruff>=0.16.10",
 ]
 
 [tool.pytest.ini_options]
