@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+from docx.table import Table
+from docx.text.paragraph import Paragraph
 from docx import Document
 from pypdf import PdfReader
 
@@ -29,30 +31,40 @@ def extract_pages_from_pdf(file_path: Path) -> list[DocumentPage]:
     return pages
 
 
+def _iter_docx_blocks(document):
+    """Paragraphs or tables gives as a order"""
+    for child in document.element.body.iterchildren():
+        tag = child.tag.rsplit("}", 1)[-1]
+
+        if tag == "p":
+            yield Paragraph(child, document).text.strip()
+
+        elif tag == "tbl":
+            table = Table(child, document)
+
+            for row in table.rows:
+                cells = []
+
+                for cell in row.cells:
+                    cell_text = cell.text.strip()
+
+                    if cell_text and (not cells or cells[-1] != cell_text):
+                        cells.append(cell_text)
+
+                if cells:
+                    yield " | ".join(cells)
+
+
 def extract_pages_from_docx(file_path: Path) -> list[DocumentPage]:
     document = Document(file_path)
 
-    paragraphs = []
-
-    for paragraph in document.paragraphs:
-        text = paragraph.text.strip()
-
-        if text:
-            paragraphs.append(text)
-
-    text = "\n\n".join(paragraphs)
+    blocks = [block for block in _iter_docx_blocks(document) if block]
+    text = "\n\n".join(blocks)
 
     if not text:
         return []
 
-    # DOCX does not have reliable page information available
-    # through python-docx, so we treat the document as one page.
-    return [
-        DocumentPage(
-            page_number=1,
-            text=text,
-        )
-    ]
+    return [DocumentPage(page_number=1, text=text)]
 
 
 def extract_pages(file_path: Path) -> list[DocumentPage]:

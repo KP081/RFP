@@ -5,7 +5,9 @@ import numpy as np
 from app.services.chunker import chunk_pages
 from app.services.document_parser import extract_pages
 from app.services.embeddings import EmbeddingService
-from app.services.ingestion_service import CHUNK_OVERLAP, CHUNK_SIZE
+from app.core.config import get_settings
+
+settings = get_settings()
 
 PDF = Path("uploads/cef53ab4-84a8-407d-aef7-176f7926b306.pdf")
 
@@ -30,7 +32,9 @@ CASES = [
 
 embedder = EmbeddingService()
 chunks = chunk_pages(
-    extract_pages(PDF), chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP
+    extract_pages(PDF),
+    chunk_size=settings.chunk_size,
+    chunk_overlap=settings.chunk_overlap,
 )
 
 for question, pages, top1 in CASES:

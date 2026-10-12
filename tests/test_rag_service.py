@@ -1,7 +1,7 @@
 from app.services.rag_service import RAGService
 
 
-RFP_ID = "cef53ab4-84a8-407d-aef7-176f7926b306"
+RFP_ID = "a9378dcd-8470-4843-a963-de558c32f7bc"
 
 
 def test_rag_answer():
@@ -10,7 +10,7 @@ def test_rag_answer():
     question = "What are the eligibility requirements for the consultant?"
 
     result = service.answer(
-        question=question, rfp_id=RFP_ID, top_k=5, score_threshold=0.50
+        question=question, rfp_ids=[RFP_ID], top_k=5, score_threshold=0.50
     )
 
     print("\n\n===== FINAL ANSWER =====")
@@ -36,7 +36,7 @@ def test_rag_rejects_unrelated_question():
 
     result = service.answer(
         question=question,
-        rfp_id=RFP_ID,
+        rfp_ids=[RFP_ID],
         top_k=5,
         score_threshold=0.50,
     )

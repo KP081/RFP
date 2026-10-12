@@ -1,4 +1,4 @@
-class APPError(Exception):
+class AppError(Exception):
     status_code = 500
 
     def __init__(self, message: str):
@@ -6,17 +6,20 @@ class APPError(Exception):
         self.message = message
 
 
-class InvalidFileError(APPError):
+class InvalidFileError(AppError):
     status_code = 400
 
 
-class RFPNotFoundError(APPError):
+class RFPNotFoundError(AppError):
     status_code = 404
 
 
-class RFPNotReadyError(APPError):
+class RFPNotReadyError(AppError):
     status_code = 409
 
 
-class LLMError(APPError):
+class LLMError(AppError):
     status_code = 502
+
+class DuplicateRFPError(AppError):
+    status_code = 409

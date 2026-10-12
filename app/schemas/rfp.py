@@ -25,6 +25,7 @@ class RFPRecord(BaseModel):
     pages: int | None = None
     chunks: int | None = None
     error: str | None = None
+    content_hash: str | None = None
     created_at: datetime = Field(default_factory=_now)
     updated_at: datetime = Field(default_factory=_now)
 

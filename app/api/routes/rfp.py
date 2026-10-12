@@ -1,68 +1,52 @@
-from pathlib import Path
-from uuid import uuid4
+from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile, status
 
-from fastapi import APIRouter, File, UploadFile, HTTPException, status
+from app.api.deps import get_rfp_service
+from app.schemas.rfp import RFPResponse
+from app.services.rfp_service import RFPService
 
-from app.services.document_parser import extract_text
-
-router = APIRouter(prefix="/rfps", tags=["RPF"])
-
-UPLOAD_DIR = Path("uploads")
-UPLOAD_DIR.mkdir(exist_ok=True)
-
-ALLOWED_EXTENSIONS = {".pdf", ".docx"}
-MAX_FILE_SIZE = 20 * 1024 * 1024
+router = APIRouter(prefix="/rfps", tags=["RFPs"])
 
 
-@router.post("/upload")
-async def upload_file(file: UploadFile = File(...)):
-    extension = Path(file.filename or "").suffix.lower()
-
-    if extension not in ALLOWED_EXTENSIONS:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Only PDF and DOCX files are supported.",
-        )
-
+@router.post("", response_model=RFPResponse, status_code=status.HTTP_202_ACCEPTED)
+async def upload_rfp(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    service: RFPService = Depends(get_rfp_service),
+):
     content = await file.read()
+    record = service.create_from_upload(file.filename or "", content)
 
-    if len(content) > MAX_FILE_SIZE:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="File size must be less than 20 MB.",
-        )
+    # Response go fast, ingestion runs in background.
+    background_tasks.add_task(service.process, record.rfp_id)
 
-    rfp_id = str(uuid4())
+    return record
 
-    saved_filename = f"{rfp_id}{extension}"
-    file_path = UPLOAD_DIR / saved_filename
 
-    file_path.write_bytes(content)
+@router.get("", response_model=list[RFPResponse])
+def list_rfps(service: RFPService = Depends(get_rfp_service)):
+    return service.list_all()
 
-    try:
-        text = extract_text(file_path=file_path)
-    except Exception as e:
-        file_path.unlink(missing_ok=True)
 
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Could not extract document text: {e}",
-        ) from e
+@router.get("/{rfp_id}", response_model=RFPResponse)
+def get_rfp(rfp_id: str, service: RFPService = Depends(get_rfp_service)):
+    return service.get(rfp_id)
 
-    if not text.strip():
-        file_path.unlink(missing_ok=True)
 
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"The document contents on extractable text.",
-        )
+@router.post(
+    "/{rfp_id}/reingest",
+    response_model=RFPResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+def reingest_rfp(
+    rfp_id: str,
+    background_tasks: BackgroundTasks,
+    service: RFPService = Depends(get_rfp_service),
+):
+    record = service.reingest(rfp_id)
+    background_tasks.add_task(service.process, rfp_id)
+    return record
 
-    return {
-        "message": "RFP uploaded and text extracted successfully.",
-        "rfp_id": rfp_id,
-        "file_name": file.filename,
-        "saved_path": str(file_path),
-        "size_bytes": len(content),
-        "text_length": len(text),
-        "text_preview": text[:1000],
-    }
+
+@router.delete("/{rfp_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_rfp(rfp_id: str, service: RFPService = Depends(get_rfp_service)):
+    service.delete(rfp_id)

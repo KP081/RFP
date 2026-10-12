@@ -1,86 +1,65 @@
+from app.core.config import get_settings
+from app.core.prompts import load_prompt
 from app.services.llm_service import LLMService
 from app.services.retrieval_service import RetrievalService
 
 
 class RAGService:
-    def __init__(self):
-        self.retrieval_service = RetrievalService()
-        self.llm_service = LLMService()
+    def __init__(
+        self,
+        retrieval_service: RetrievalService | None = None,
+        llm_service: LLMService | None = None,
+    ):
+        self.settings = get_settings()
+        self.retrieval_service = retrieval_service or RetrievalService()
+        self.llm_service = llm_service or LLMService()
 
     def answer(
         self,
         question: str,
-        rfp_id: str | None = None,
-        top_k: int = 5,
+        rfp_ids: list[str] | None = None,
+        top_k: int | None = None,
         score_threshold: float | None = None,
     ) -> dict:
         if not question.strip():
             raise ValueError("Question cannot be empty.")
 
-        # 1. Retrieve relevant chunks
+        # 1. Retrieve
         results = self.retrieval_service.search(
-            query=question, rfp_id=rfp_id, top_k=top_k, score_threshold=score_threshold
+            query=question,
+            rfp_ids=rfp_ids,
+            top_k=top_k,
+            score_threshold=score_threshold,
         )
 
         if not results:
-            return {
-                "answer": "I could not find relevant information in the document.",
-                "sources": [],
-            }
+            return {"answer": self.settings.no_answer_message, "sources": []}
 
-        # 2. Build context from retrieved chunks
-        context_parts = []
+        # 2. Context
+        context = "\n\n---\n\n".join(
+            f"Source: {r['filename']}\nPage: {r['page_number']}\n\n{r['text']}".strip()
+            for r in results
+        )
 
-        for result in results:
-            context_parts.append(
-                f"""
-Source: {result["filename"]}
-Page: {result["page_number"]}
+        # 3. Prompt
+        template = load_prompt(self.settings.rag_prompt_file)
+        prompt = template.format(context=context, question=question)
 
-{result["text"]}
-""".strip()
-            )
-
-        context = "\n\n---\n\n".join(context_parts)
-
-        # 3. Build grounded prompt
-        prompt = f"""
-You are an assistant answering questions about an RFP document.
-
-Answer the user's question using ONLY the provided context.
-
-Rules:
-- Do not use outside knowledge.
-- Do not invent facts.
-- If the context does not contain enough information, say:
-  "I could not find enough information in the provided document."
-- Keep the answer clear and concise.
-- Mention the relevant page number(s) in the answer.
-
-Context:
-{context}
-
-User question:
-{question}
-
-Answer:
-""".strip()
-
-        # 4. Generate answer
+        # 4. Generate
         answer = self.llm_service.generate(prompt)
 
-        # 5. Return answer + sources
-        sources = [
-            {
-                "filename": result["filename"],
-                "page_number": result["page_number"],
-                "chunk_id": result["chunk_id"],
-                "score": result["score"],
-            }
-            for result in results
-        ]
-
+        # 5. Answer + sources
         return {
             "answer": answer,
-            "sources": sources,
+            "sources": [
+                {
+                    "rfp_id": r["rfp_id"],
+                    "filename": r["filename"],
+                    "page_number": r["page_number"],
+                    "chunk_id": r["chunk_id"],
+                    "score": r["score"],
+                    "text": r["text"],
+                }
+                for r in results
+            ],
         }

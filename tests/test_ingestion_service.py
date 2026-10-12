@@ -4,13 +4,13 @@ from app.services.ingestion_service import IngestionService
 
 
 def test_ingest_rfp():
-    file_path = Path("uploads/cef53ab4-84a8-407d-aef7-176f7926b306.pdf")
+    file_path = Path("uploads/a9378dcd-8470-4843-a963-de558c32f7bc.pdf")
 
     service = IngestionService()
 
     result = service.ingest(
         file_path=file_path,
-        rfp_id="cef53ab4-84a8-407d-aef7-176f7926b306",
+        rfp_id="a9378dcd-8470-4843-a963-de558c32f7bc",
         filename="RFP_DPR.pdf",
     )
 

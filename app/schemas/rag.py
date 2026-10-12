@@ -10,7 +10,7 @@ class _RetrievalParams(BaseModel):
 
 
 class AskRequest(_RetrievalParams):
-    question: str = Field(max_length=1)
+    question: str = Field(min_length=1)
 
 
 class SearchRequest(_RetrievalParams):

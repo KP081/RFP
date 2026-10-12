@@ -1,7 +1,7 @@
 from app.services.retrieval_service import RetrievalService
 
 
-RFP_ID = "cef53ab4-84a8-407d-aef7-176f7926b306"
+RFP_ID = "a9378dcd-8470-4843-a963-de558c32f7bc"
 
 
 """
@@ -107,7 +107,7 @@ def test_retrieval_evaluation():
 
         results = service.search(
             query=question,
-            rfp_id=RFP_ID,
+            rfp_ids=[RFP_ID],
             top_k=5,
         )
 
