@@ -9,7 +9,7 @@ from app.core.exceptions import (
     InvalidFileError,
     RFPNotFoundError,
     RFPNotReadyError,
-    DuplicateRFPError
+    DuplicateRFPError,
 )
 from app.repositories.base import RFPRepository
 from app.schemas.rfp import RFPRecord, RFPStatus
@@ -156,21 +156,21 @@ class RFPService:
         self.qdrant_service.delete_by_rfp(rfp_id)
         Path(record.stored_path).unlink(missing_ok=True)
         self.repository.delete(rfp_id)
-        
+
     def resolve_rfp_ids(self, rfp_ids: list[str] | None) -> list[str]:
         """If IDs are provided, validate them. Otherwise, get all READY RFPs."""
-        
+
         if rfp_ids:
             self.ensure_ready(rfp_ids=rfp_ids)
             return rfp_ids
-        
+
         ready = [
             record.rfp_id
             for record in self.repository.list_all()
             if record.status == RFPStatus.READY
         ]
-        
+
         if not ready:
             raise RFPNotReadyError("No ready RFPs found. Upload an RFP first.")
-        
+
         return ready

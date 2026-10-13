@@ -21,5 +21,6 @@ class RFPNotReadyError(AppError):
 class LLMError(AppError):
     status_code = 502
 
+
 class DuplicateRFPError(AppError):
     status_code = 409
