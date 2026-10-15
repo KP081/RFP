@@ -95,7 +95,9 @@ def test_section_schema_has_no_recursion(name, model):
 
     def refs_in(node):
         return {
-            n["$ref"].split("/")[-1] for n in _walk(node) if isinstance(n, dict) and "$ref" in n
+            n["$ref"].split("/")[-1]
+            for n in _walk(node)
+            if isinstance(n, dict) and "$ref" in n
         }
 
     for def_name, definition in defs.items():
@@ -121,7 +123,9 @@ def test_closed_sets_reject_unknown_values():
         Threshold(label="turnover", aggregation="sometimes")
 
     with pytest.raises(ValidationError):
-        TenderExtraction.model_validate({"identity": {"assignment_type": "random_thing"}})
+        TenderExtraction.model_validate(
+            {"identity": {"assignment_type": "random_thing"}}
+        )
 
 
 def test_threshold_kind_defaults_to_other():
@@ -163,3 +167,10 @@ def test_packages_limit_and_corrigendum_kind():
 
     doc = TenderExtraction.model_validate({"document_kind": "corrigendum"})
     assert doc.document_kind == DocumentKind.CORRIGENDUM
+
+
+def test_llm_root_schema_has_no_open_dicts():
+    from app.schemas.extraction import TenderExtractionLLM
+
+    for node in _walk(TenderExtractionLLM.model_json_schema()):
+        assert "additionalProperties" not in node

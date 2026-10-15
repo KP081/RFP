@@ -2,6 +2,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import Literal
 
 
 class Settings(BaseSettings):
@@ -49,6 +50,13 @@ class Settings(BaseSettings):
     llm_temperature: float = 0.0
     rag_prompt_file: str = "rag_answer.txt"
     no_answer_message: str = "I could not find relevant information in the document."
+    gemini_timeout_s: int = 600
+
+    # ---- Extraction ----
+    extract_context: Literal["pdf", "text"] = "pdf"
+    extract_prompt_file: str = "extraction.txt"
+    extract_max_output_tokens: int = 60000
+    extract_repair_attempts: int = 1
 
     @property
     def max_upload_bytes(self) -> int:
