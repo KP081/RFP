@@ -5,17 +5,21 @@ from pydantic import ValidationError
 
 from app.schemas.extraction import (
     SECTION_MODELS,
+    Amount,
+    Criterion,
     Dates,
+    DelayDamage,
     Security,
     SecurityStatus,
     TenderExtraction,
+    TenderExtractionLLM,
     is_iso_date,
     normalize_date,
 )
 
 
 def test_empty_extraction_is_valid():
-    # Koi RFP kuch nahi deta to bhi object valid hona chahiye (sab "not found").
+    # If an RFP gives nothing, the object must still be valid (everything "not found").
     doc = TenderExtraction()
 
     assert doc.identity.title is None
@@ -32,6 +36,7 @@ def test_empty_extraction_is_valid():
         ("25.03.2026, 05:00 PM", "2026-03-25"),
         ("2026-03-25", "2026-03-25"),
         ("25 March 2026", "2026-03-25"),
+        ("January 28, 2020", "2020-01-28"),
         (None, None),
         ("", None),
     ],
@@ -60,7 +65,7 @@ def test_percent_bounds_are_enforced():
 
 
 def test_roundtrip_json():
-    # model_validate se banao (attribute assign karne pe validators nahi chalte).
+    # Build with model_validate (attribute assignment skips validators).
     doc = TenderExtraction.model_validate(
         {
             "identity": {"title": "DPR for 4-laning"},
@@ -89,7 +94,7 @@ def _walk(node):
 
 @pytest.mark.parametrize("name, model", list(SECTION_MODELS.items()))
 def test_section_schema_has_no_recursion(name, model):
-    # Recursive schema = $ref jo khud ko hi point kare. Gemini ise aksar reject karta hai.
+    # A recursive schema = a $ref that points to itself. Gemini often rejects it.
     schema = model.model_json_schema()
     defs = schema.get("$defs", {})
 
@@ -113,19 +118,28 @@ def test_section_schema_has_no_open_dicts_or_forbid(name, model):
         assert "additionalProperties" not in node, f"{name}: additionalProperties found"
 
 
-# ---------- v1.1: audit se aaye fields ----------
+def test_llm_root_schema_has_no_open_dicts():
+    # The ROOT has `meta.pages_used: dict`, so only the LLM-facing root may go to Gemini.
+    for node in _walk(TenderExtractionLLM.model_json_schema()):
+        assert "additionalProperties" not in node
+
+    assert "meta" not in TenderExtractionLLM.model_fields
+    assert "meta" in TenderExtraction.model_fields
 
 
-def test_closed_sets_reject_unknown_values():
-    from app.schemas.extraction import Threshold
+# ---------- v1.1: fields that came from the audit ----------
 
-    with pytest.raises(ValidationError):
-        Threshold(label="turnover", aggregation="sometimes")
 
-    with pytest.raises(ValidationError):
-        TenderExtraction.model_validate(
-            {"identity": {"assignment_type": "random_thing"}}
-        )
+def test_closed_sets_never_hold_a_value_outside_the_set():
+    from app.schemas.extraction import AssignmentType, Threshold
+
+    # An unknown value is coerced (other / default), never stored as is.
+    assert Threshold(label="turnover", aggregation="sometimes").aggregation is None
+
+    doc = TenderExtraction.model_validate(
+        {"identity": {"assignment_type": "random_thing"}}
+    )
+    assert doc.identity.assignment_type == AssignmentType.OTHER
 
 
 def test_threshold_kind_defaults_to_other():
@@ -169,8 +183,161 @@ def test_packages_limit_and_corrigendum_kind():
     assert doc.document_kind == DocumentKind.CORRIGENDUM
 
 
-def test_llm_root_schema_has_no_open_dicts():
-    from app.schemas.extraction import TenderExtractionLLM
+# ---------- v1.2 ----------
 
-    for node in _walk(TenderExtractionLLM.model_json_schema()):
-        assert "additionalProperties" not in node
+
+def test_amount_keeps_net_and_with_tax_separately():
+    fee = Amount(
+        value=5000, value_with_tax=5900, raw_text="Rs.5,000 + 18% GST (Rs. 5,900)"
+    )
+
+    assert fee.value == 5000
+    assert fee.value_with_tax == 5900
+    assert Amount().value is None and Amount().value_with_tax is None
+
+
+def test_money_is_currency_neutral_and_document_has_a_currency():
+    doc = TenderExtraction.model_validate(
+        {
+            "identity": {"currency": "USD"},
+            "project": {"estimated_contract_value": {"value": 325000}},
+        }
+    )
+
+    assert doc.identity.currency == "USD"
+    assert doc.project.estimated_contract_value.value == 325000
+
+    # the old INR-only names must be gone
+    dumped = json.dumps(TenderExtraction().model_dump())
+    assert "_inr" not in dumped
+
+
+def test_ppp_family_exists():
+    doc = TenderExtraction.model_validate({"family": "ppp_partnership"})
+
+    assert doc.family.value == "ppp_partnership"
+
+
+def test_null_object_or_list_means_default_not_error():
+    # Real failure: the model wrote null for project.project_cost / estimated_contract_value.
+    doc = TenderExtractionLLM.model_validate_json(
+        '{"project": {"estimated_contract_value": null, "project_cost": null, "states": null},'
+        ' "securities": {"bid_security": null}, "identity": {"contact": null, "title": null}}'
+    )
+
+    assert doc.project.project_cost.value is None
+    assert doc.project.estimated_contract_value.raw_text is None
+    assert doc.project.states == []
+    assert doc.securities.bid_security.status.value == "not_stated"
+    assert doc.identity.contact.email is None and doc.identity.title is None
+
+
+def test_amount_accepts_a_plain_number_or_text():
+    doc = TenderExtractionLLM.model_validate(
+        {"project": {"estimated_contract_value": 325000, "project_cost": "Rs 14.86 Cr"}}
+    )
+
+    assert doc.project.estimated_contract_value.value == 325000
+    assert doc.project.project_cost.raw_text == "Rs 14.86 Cr"
+    assert doc.project.project_cost.value is None
+
+
+def test_null_tolerance_does_not_hide_real_errors():
+    with pytest.raises(ValidationError):
+        TenderExtractionLLM.model_validate(
+            {"securities": {"bid_security": {"percent": 150}}}
+        )
+
+    with pytest.raises(ValidationError):
+        TenderExtractionLLM.model_validate({"dates": {"validity_days": -1}})
+
+
+def test_nil_security_can_still_say_declaration_is_permitted():
+    sec = Security(status=SecurityStatus.NIL, amount=0, declaration_permitted=True)
+
+    assert sec.status == SecurityStatus.NIL and sec.declaration_permitted is True
+
+
+def test_cost_plus_fixed_fee_contract_form():
+    doc = TenderExtraction.model_validate(
+        {"identity": {"contract_form": "cost_plus_fixed_fee"}}
+    )
+
+    assert doc.identity.contract_form.value == "cost_plus_fixed_fee"
+
+
+def test_rated_and_pass_fail_criteria():
+    scored = Criterion(name="Qualifications & Experience", max_points=20, weight=20)
+    gate = Criterion(name="Completeness of Response", is_pass_fail=True)
+
+    assert scored.weight == 20 and scored.is_pass_fail is None
+    assert gate.is_pass_fail is True and gate.max_points is None
+
+    doc = TenderExtraction.model_validate(
+        {
+            "evaluation": {
+                "rating_scale_max": 5,
+                "total_points": 100,
+                "bid_parameter": "share %",
+            }
+        }
+    )
+    assert doc.evaluation.rating_scale_max == 5
+
+
+def test_delay_damages_can_hold_two_different_clauses():
+    doc = TenderExtraction.model_validate(
+        {
+            "contract": {
+                "delay_damages": [
+                    {
+                        "kind": "liquidated_damages",
+                        "rate_text": "1/2% of monthly bill per week",
+                    },
+                    {"kind": "penalty", "rate_text": "0.05% per day", "max_pct": 5},
+                ]
+            }
+        }
+    )
+
+    kinds = [d.kind.value for d in doc.contract.delay_damages]
+    assert kinds == ["liquidated_damages", "penalty"]
+    assert isinstance(doc.contract.delay_damages[0], DelayDamage)
+
+    with pytest.raises(ValidationError):
+        DelayDamage(max_pct=150)
+
+
+def test_unknown_enum_value_becomes_other_or_default_not_error():
+    # Real failure: identity.contract_form got a value that is not in the closed set.
+    doc = TenderExtractionLLM.model_validate(
+        {
+            "identity": {
+                "contract_form": "time_based_with_lump_sum",
+                "selection_method": "QBS",
+            },
+            "securities": {"bid_security": {"status": "maybe"}},
+            "key_personnel": {"roles": [{"role": "TL", "category": "Key Personnel"}]},
+            "family": "something odd",
+        }
+    )
+
+    assert doc.identity.contract_form.value == "other"  # set has "other"
+    assert doc.identity.selection_method.value == "qbs"  # case / spacing fixed
+    assert (
+        doc.securities.bid_security.status.value == "not_stated"
+    )  # no "other": default
+    assert doc.key_personnel.roles[0].category.value == "key"  # default
+    assert doc.family.value == "other"
+
+
+def test_valid_enum_values_are_untouched():
+    doc = TenderExtractionLLM.model_validate(
+        {
+            "identity": {"contract_form": "cost_plus_fixed_fee"},
+            "securities": {"bid_security": {"status": "nil"}},
+        }
+    )
+
+    assert doc.identity.contract_form.value == "cost_plus_fixed_fee"
+    assert doc.securities.bid_security.status.value == "nil"

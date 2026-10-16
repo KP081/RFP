@@ -13,6 +13,7 @@ from app.schemas.extraction import (
     PersonnelCategory,
     TenderExtraction,
     TenderExtractionLLM,
+    ThresholdBasis,
     is_iso_date,
 )
 from app.services.document_parser import extract_pages
@@ -155,6 +156,10 @@ def consistency_flags(doc: TenderExtractionLLM) -> list[str]:
     """Review flags only: a flag means 'look at this', not 'this is wrong'."""
     flags: list[str] = []
 
+    # money without a currency
+    if _has_money(doc) and not doc.identity.currency:
+        flags.append("money amounts found but identity.currency is not set")
+
     # dates
     for name in DATE_FIELDS:
         value = getattr(doc.dates, name)
@@ -223,3 +228,32 @@ def consistency_flags(doc: TenderExtractionLLM) -> list[str]:
             )
 
     return flags
+
+
+def _has_money(doc: TenderExtractionLLM) -> bool:
+    amounts = [
+        doc.project.estimated_contract_value,
+        doc.project.project_cost,
+        doc.securities.document_fee,
+    ]
+    if any(a.value is not None or a.value_with_tax is not None for a in amounts):
+        return True
+
+    securities = (
+        doc.securities.bid_security,
+        doc.securities.performance_security,
+        doc.securities.additional_performance_security,
+    )
+    if any(sec.amount is not None for sec in securities):
+        return True
+
+    if any(
+        t.basis == ThresholdBasis.ABSOLUTE_AMOUNT and t.value is not None
+        for t in doc.qualification.financial
+    ):
+        return True
+
+    return any(
+        r.rate_per_month is not None or r.cost is not None
+        for r in doc.key_personnel.roles
+    )

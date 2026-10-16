@@ -1,0 +1,208 @@
+{
+  "name": "dpr_bhopal_kota",
+  "pdf": "uploads/a9378dcd-8470-4843-a963-de558c32f7bc.pdf",
+  "about": "NHAI Bhopal-Kota DPR RFP (RFP_DPR.pdf, 382 pages). Facts verified against the PDF pages listed; most are known failure points of earlier runs.",
+  "checks": [
+    {
+      "path": "document_kind",
+      "expect": "tender_document",
+      "page": 1
+    },
+    {
+      "path": "family",
+      "expect": "consultancy_rfp",
+      "page": 1
+    },
+    {
+      "path": "identity.currency",
+      "expect": "INR",
+      "page": 78
+    },
+    {
+      "path": "identity.rfp_number",
+      "contains": "efile-299153",
+      "page": 10
+    },
+    {
+      "path": "identity.title",
+      "contains": "Kota",
+      "page": 1
+    },
+    {
+      "path": "identity.selection_method",
+      "expect": "qbs",
+      "page": 10
+    },
+    {
+      "path": "project.length_km",
+      "expect": 340,
+      "page": 1
+    },
+    {
+      "path": "project.estimated_contract_value.value",
+      "expect": 98644500,
+      "page": 353,
+      "note": "net of GST; document says net of tax is considered for evaluation"
+    },
+    {
+      "path": "project.estimated_contract_value.value_with_tax",
+      "expect": 116400510,
+      "page": 353
+    },
+    {
+      "path": "project.project_cost.value",
+      "expect": null,
+      "page": 278,
+      "trap": true,
+      "note": "page 278 is a sample table (<source>, Xx km): earlier run copied 1486 Cr from it"
+    },
+    {
+      "path": "dates.submission_end",
+      "expect": "2026-03-25",
+      "page": 11
+    },
+    {
+      "path": "dates.technical_opening",
+      "expect": "2026-03-27",
+      "page": 11
+    },
+    {
+      "path": "dates.validity_days",
+      "expect": 120,
+      "page": 12
+    },
+    {
+      "path": "securities.document_fee.value",
+      "expect": 5000,
+      "page": 12
+    },
+    {
+      "path": "securities.bid_security.status",
+      "expect": "nil",
+      "page": 13,
+      "note": "amount NIL, declaration permitted"
+    },
+    {
+      "path": "securities.bid_security.declaration_permitted",
+      "expect": true,
+      "page": 13
+    },
+    {
+      "path": "securities.performance_security.status",
+      "expect": "required",
+      "page": 13
+    },
+    {
+      "path": "securities.performance_security.percent",
+      "expect": 5,
+      "page": 13
+    },
+    {
+      "path": "securities.performance_security.is_minimum",
+      "expect": true,
+      "page": 13
+    },
+    {
+      "path": "securities.performance_security.bidder_quoted",
+      "expect": true,
+      "page": 13
+    },
+    {
+      "path": "evaluation.weights.technical_pct",
+      "expect": 30,
+      "page": 40
+    },
+    {
+      "path": "evaluation.weights.financial_pct",
+      "expect": null,
+      "page": 40,
+      "trap": true,
+      "note": "QBS: the 40 is the PBG quote weight, not a financial score"
+    },
+    {
+      "path": "evaluation.weights.other[name~PBG].weight_pct",
+      "expect": 40,
+      "page": 40
+    },
+    {
+      "path": "evaluation.weights.other[name~DPR].weight_pct",
+      "expect": 30,
+      "page": 40
+    },
+    {
+      "path": "evaluation.min_technical_score",
+      "expect": 70,
+      "page": 40
+    },
+    {
+      "path": "eligibility.subcontracting.max_pct",
+      "expect": 10,
+      "page": 15
+    },
+    {
+      "path": "qualification.financial[kind=turnover].value",
+      "expect": 100000000,
+      "page": 17,
+      "note": "Rs 10 crore"
+    },
+    {
+      "path": "key_personnel.key_person_months_total",
+      "expect": 76,
+      "page": 280,
+      "note": "no printed total; roles add up to 76"
+    },
+    {
+      "path": "key_personnel.roles[role~Team Leader].person_months",
+      "expect": 12,
+      "page": 280
+    },
+    {
+      "path": "key_personnel.roles[role~Team Leader].technical_weight_points",
+      "expect": 14,
+      "page": 287
+    },
+    {
+      "path": "key_personnel.roles[role~Team Leader].min_experience_years",
+      "expect": null,
+      "page": 289,
+      "trap": true,
+      "note": "'<15 years = 0 marks' etc. are scoring bands, not a minimum"
+    },
+    {
+      "path": "key_personnel.roles[role~Team Leader].rate_per_month",
+      "expect": 500000,
+      "page": 355
+    },
+    {
+      "path": "key_personnel.roles[role~Tunnel].is_conditional",
+      "expect": true,
+      "page": 288
+    },
+    {
+      "path": "key_personnel.roles[role~Tunnel].rate_per_month",
+      "expect": 500000,
+      "page": 288
+    },
+    {
+      "path": "contract.payment_stages#len",
+      "expect": 19,
+      "page": 78
+    },
+    {
+      "path": "contract.payment_stages[0].percent",
+      "expect": 2.5,
+      "page": 78
+    },
+    {
+      "path": "contract.delay_damages[kind=penalty].max_pct",
+      "expect": 5,
+      "page": 96,
+      "note": "GCC 14.3.2: 0.05% per day, max 5%"
+    },
+    {
+      "path": "contract.delay_damages[kind=liquidated_damages].rate_text",
+      "contains": "monthly bill",
+      "page": 71
+    }
+  ]
+}

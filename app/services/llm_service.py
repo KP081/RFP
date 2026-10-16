@@ -4,6 +4,7 @@ import logging
 import re
 import time
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 
 from google import genai
@@ -34,6 +35,26 @@ _DROP_KEYS = {
 }
 
 _FENCE = re.compile(r"^```(?:json)?\s*|\s*```$", re.IGNORECASE)
+_RETRY_IN = re.compile(
+    r"retry in ([\d.]+)\s*s|retryDelay['\"]?\s*:\s*['\"]?([\d.]+)s", re.IGNORECASE
+)
+
+
+def _rate_limit_wait(message: str) -> float | None:
+    """Seconds to wait if this error is a per-minute rate limit (429), else None.
+
+    Daily quota errors are not retried: waiting a minute would not help.
+    """
+    if "429" not in message and "RESOURCE_EXHAUSTED" not in message:
+        return None
+
+    if "PerDay" in message or "per day" in message.lower():
+        return None
+
+    match = _RETRY_IN.search(message)
+    seconds = float(next(group for group in match.groups() if group)) if match else 60.0
+
+    return min(seconds + 3, 120.0)
 
 
 def lean_json_schema(model: type[BaseModel]) -> dict:
@@ -181,9 +202,10 @@ class LLMService:
 
             repair_prompt = (
                 "Your previous JSON failed validation. You can no longer see the "
-                "document. Fix ONLY the listed problems using your previous JSON; "
-                "if a value cannot be fixed from it, use null. Return the complete "
-                "corrected JSON object.\n\n"
+                "document. Fix ONLY the listed problems using your previous JSON. "
+                "Use null only for a plain value that cannot be fixed; an object must "
+                "stay an object (with all its fields null) and a list must stay a list "
+                "([]). Return the complete corrected JSON object.\n\n"
                 f"ERRORS:\n{error}\n\n"
                 f"PREVIOUS JSON:\n{text}\n\n"
                 f"JSON SCHEMA:\n{schema_text}"
@@ -192,9 +214,10 @@ class LLMService:
             data, error = self._parse(text, schema)
 
         if data is None:
+            dumped = _dump_invalid(text)
             raise LLMError(
                 f"Model output failed validation after {repairs} repair attempt(s): "
-                f"{error}"
+                f"{error} (raw output saved: {dumped})"
             )
 
         logger.info(
@@ -208,18 +231,35 @@ class LLMService:
         return StructuredResult(data=data, usage=usage, repairs=repairs)
 
     def _call(self, contents: list, max_output_tokens: int, usage: Usage) -> str:
-        try:
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=contents,
-                config=types.GenerateContentConfig(
-                    temperature=self.temperature,
-                    response_mime_type="application/json",
-                    max_output_tokens=max_output_tokens,
-                ),
-            )
-        except Exception as e:
-            raise LLMError(f"LLM request failed: {e}") from e
+        retries = getattr(get_settings(), "gemini_rate_limit_retries", 3)
+        attempt = 0
+
+        while True:
+            try:
+                response = self.client.models.generate_content(
+                    model=self.model,
+                    contents=contents,
+                    config=types.GenerateContentConfig(
+                        temperature=self.temperature,
+                        response_mime_type="application/json",
+                        max_output_tokens=max_output_tokens,
+                    ),
+                )
+                break
+            except Exception as e:
+                wait = _rate_limit_wait(str(e))
+
+                if wait is None or attempt >= retries:
+                    raise LLMError(f"LLM request failed: {e}") from e
+
+                attempt += 1
+                logger.warning(
+                    "Rate limited (429). Waiting %.0fs, retry %d/%d",
+                    wait,
+                    attempt,
+                    retries,
+                )
+                time.sleep(wait)
 
         usage.add(response.usage_metadata)
 
@@ -259,3 +299,16 @@ def _finish_reason(response) -> str:
 
     reason = getattr(candidates[0], "finish_reason", None)
     return getattr(reason, "name", str(reason or ""))
+
+
+def _dump_invalid(text: str) -> str:
+    """Keep the last invalid model output, so we can see what the model really wrote."""
+    try:
+        folder = Path("data/debug")
+        folder.mkdir(parents=True, exist_ok=True)
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+        target = folder / f"invalid_{stamp}.json"
+        target.write_text(text, encoding="utf-8")
+        return str(target)
+    except OSError:
+        return "could not write"

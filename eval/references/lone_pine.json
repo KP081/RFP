@@ -1,0 +1,233 @@
+{
+  "name": "lone_pine",
+  "pdf": "uploads/FINAL RFP Lone Pine Sidewalk ATP Project.pdf",
+  "about": "Inyo County (California) A&E consulting RFP: USD, cost-plus-fixed-fee, rated 0-5 x weight, pass/fail gates, no JV/turnover/security. Page numbers = printed = PDF pages.",
+  "checks": [
+    {
+      "path": "document_kind",
+      "expect": "tender_document",
+      "page": 1
+    },
+    {
+      "path": "family",
+      "expect": "consultancy_rfp",
+      "page": 3
+    },
+    {
+      "path": "identity.currency",
+      "expect": "USD",
+      "page": 3
+    },
+    {
+      "path": "identity.authority_name",
+      "contains": "Inyo County",
+      "page": 1
+    },
+    {
+      "path": "identity.title",
+      "contains": "Lone Pine",
+      "page": 1
+    },
+    {
+      "path": "identity.selection_method",
+      "expect": "qbs",
+      "page": 14,
+      "note": "Brooks Act / only the most qualified firm's cost proposal is opened; basis is inferred"
+    },
+    {
+      "path": "identity.contract_form",
+      "expect": "cost_plus_fixed_fee",
+      "page": 8
+    },
+    {
+      "path": "identity.contact.name",
+      "expect": "Trevor Taylor",
+      "page": 3
+    },
+    {
+      "path": "identity.contact.email",
+      "expect": "ttaylor@inyocounty.us",
+      "page": 4
+    },
+    {
+      "path": "project.estimated_contract_value.value",
+      "expect": 325000,
+      "page": 3,
+      "note": "'not to exceed' ceiling"
+    },
+    {
+      "path": "project.project_cost.value",
+      "expect": 1589000,
+      "page": 5,
+      "note": "programmed construction funding FY21/22"
+    },
+    {
+      "path": "project.states",
+      "contains": "California",
+      "page": 1
+    },
+    {
+      "path": "dates.published",
+      "expect": "2020-01-02",
+      "page": 1
+    },
+    {
+      "path": "dates.submission_end",
+      "expect": "2020-01-28",
+      "page": 3
+    },
+    {
+      "path": "dates.clarification_end",
+      "expect": "2020-01-21",
+      "page": 4
+    },
+    {
+      "path": "dates.validity_days",
+      "expect": 90,
+      "page": 12
+    },
+    {
+      "path": "dates.technical_opening",
+      "expect": null,
+      "page": 4,
+      "trap": true,
+      "note": "'proposal review Jan 28-Feb 11' is not an opening date"
+    },
+    {
+      "path": "dates.financial_opening",
+      "expect": null,
+      "page": 14,
+      "trap": true,
+      "note": "cost proposal is opened after selection, no date"
+    },
+    {
+      "path": "dates.pre_bid.date",
+      "expect": null,
+      "page": 3,
+      "trap": true
+    },
+    {
+      "path": "dates.pre_bid.required",
+      "expect_any": [null, false],
+      "page": 3,
+      "trap": true
+    },
+    {
+      "path": "securities.document_fee.value",
+      "expect": null,
+      "page": 3,
+      "trap": true
+    },
+    {
+      "path": "securities.bid_security.status",
+      "expect": "not_stated",
+      "page": 3,
+      "trap": true
+    },
+    {
+      "path": "securities.performance_security.status",
+      "expect": "not_stated",
+      "page": 3,
+      "trap": true
+    },
+    {
+      "path": "eligibility.jv.allowed",
+      "expect": null,
+      "page": 3,
+      "trap": true
+    },
+    {
+      "path": "qualification.financial#len",
+      "expect": 0,
+      "page": 3,
+      "trap": true,
+      "note": "no turnover / net worth requirement"
+    },
+    {
+      "path": "qualification.experience[0].min_count",
+      "expect": 3,
+      "page": 11
+    },
+    {
+      "path": "qualification.experience[0].lookback_years",
+      "expect": 5,
+      "page": 11
+    },
+    {
+      "path": "evaluation.rating_scale_max",
+      "expect": 5,
+      "page": 14
+    },
+    {
+      "path": "evaluation.criteria[name~Qualifications].max_points",
+      "expect": 20,
+      "page": 15
+    },
+    {
+      "path": "evaluation.criteria[name~Organization].max_points",
+      "expect": 15,
+      "page": 15
+    },
+    {
+      "path": "evaluation.criteria[name~Scope of Services].max_points",
+      "expect": 20,
+      "page": 15
+    },
+    {
+      "path": "evaluation.criteria[name~Schedule of Work].max_points",
+      "expect": 10,
+      "page": 15
+    },
+    {
+      "path": "evaluation.criteria[name~Local Presence].max_points",
+      "expect": 5,
+      "page": 15
+    },
+    {
+      "path": "evaluation.criteria[name~References].max_points",
+      "expect": 10,
+      "page": 15
+    },
+    {
+      "path": "evaluation.criteria[name~Presentation].max_points",
+      "expect": 10,
+      "page": 15
+    },
+    {
+      "path": "evaluation.criteria[name~Q&A].max_points",
+      "expect": 10,
+      "page": 15
+    },
+    {
+      "path": "evaluation.criteria[name~Completeness].is_pass_fail",
+      "expect": true,
+      "page": 15
+    },
+    {
+      "path": "evaluation.criteria[name~Conflict].is_pass_fail",
+      "expect": true,
+      "page": 15
+    },
+    {
+      "path": "key_personnel.roles#len",
+      "expect": 0,
+      "page": 12,
+      "trap": true,
+      "note": "no named roles in the RFP"
+    },
+    {
+      "path": "contract.duration_months",
+      "expect": null,
+      "page": 3,
+      "trap": true,
+      "note": "performance period runs to completion of construction; no stated duration"
+    },
+    {
+      "path": "contract.payment_stages#len",
+      "expect": 0,
+      "page": 13,
+      "trap": true,
+      "note": "monthly progress payments, no percentage schedule"
+    }
+  ]
+}

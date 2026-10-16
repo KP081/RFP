@@ -51,6 +51,7 @@ class Settings(BaseSettings):
     rag_prompt_file: str = "rag_answer.txt"
     no_answer_message: str = "I could not find relevant information in the document."
     gemini_timeout_s: int = 600
+    gemini_rate_limit_retries: int = 3
 
     # ---- Extraction ----
     extract_context: Literal["pdf", "text"] = "pdf"

@@ -1,0 +1,171 @@
+{
+  "name": "gandhidham",
+  "pdf": "uploads/RFP_Gandhidham-Cluster-Final-2702.pdf",
+  "about": "Gujarat DET: selection of an Anchor Industry Partner for ITI clusters under PM-SETU (SPV). QCBS 80:20. All dates are 'As per bid detail'; employee strength is the placeholder XXXX. Page numbers = printed = PDF pages.",
+  "checks": [
+    {
+      "path": "document_kind",
+      "expect": "tender_document",
+      "page": 1
+    },
+    {
+      "path": "family",
+      "expect_any": ["ppp_partnership", "other"],
+      "page": 6
+    },
+    {
+      "path": "identity.currency",
+      "expect": "INR",
+      "page": 17
+    },
+    {
+      "path": "identity.rfp_number",
+      "expect": "03/2026",
+      "page": 1
+    },
+    {
+      "path": "identity.authority_name",
+      "contains": "Directorate of Employment and Training",
+      "page": 1
+    },
+    {
+      "path": "identity.title",
+      "contains": "Anchor Industry Partner",
+      "page": 1
+    },
+    {
+      "path": "identity.selection_method",
+      "expect": "qcbs",
+      "page": 14
+    },
+    {
+      "path": "identity.no_of_covers",
+      "expect": 2,
+      "page": 17
+    },
+    {
+      "path": "project.project_cost.value",
+      "expect": 2410000000,
+      "page": 17,
+      "note": "Estimated project cost 241 cr"
+    },
+    {
+      "path": "dates.published",
+      "expect": null,
+      "page": 6,
+      "trap": true,
+      "note": "'As per bid detail'"
+    },
+    {
+      "path": "dates.submission_end",
+      "expect": null,
+      "page": 6,
+      "trap": true,
+      "note": "'As per bid detail'"
+    },
+    {
+      "path": "dates.technical_opening",
+      "expect": null,
+      "page": 6,
+      "trap": true,
+      "note": "'As per bid detail'"
+    },
+    {
+      "path": "dates.financial_opening",
+      "expect": null,
+      "page": 6,
+      "trap": true,
+      "note": "'To be intimated later'"
+    },
+    {
+      "path": "dates.pre_bid.date",
+      "expect": null,
+      "page": 6,
+      "trap": true,
+      "note": "'As per bid detail'"
+    },
+    {
+      "path": "dates.validity_days",
+      "expect": 180,
+      "page": 18
+    },
+    {
+      "path": "securities.bid_security.status",
+      "expect": "required",
+      "page": 17
+    },
+    {
+      "path": "securities.bid_security.amount",
+      "expect": 72300000,
+      "page": 17,
+      "note": "Rs 7.23 cr"
+    },
+    {
+      "path": "securities.bid_security.percent",
+      "expect": 3,
+      "page": 17
+    },
+    {
+      "path": "securities.performance_security.status",
+      "expect": "required",
+      "page": 18
+    },
+    {
+      "path": "securities.performance_security.percent",
+      "expect": 5,
+      "page": 18
+    },
+    {
+      "path": "securities.performance_security.percent_basis",
+      "contains": "project cost",
+      "page": 18
+    },
+    {
+      "path": "eligibility.jv.allowed",
+      "expect": true,
+      "page": 6
+    },
+    {
+      "path": "eligibility.jv.max_members",
+      "expect": 5,
+      "page": 6
+    },
+    {
+      "path": "qualification.financial[kind=turnover].value",
+      "expect": 5000000000,
+      "page": 21,
+      "note": "INR 500 crore"
+    },
+    {
+      "path": "qualification.financial[kind=turnover].period_years",
+      "expect": 3,
+      "page": 21
+    },
+    {
+      "path": "qualification.financial[kind=staff_strength].value",
+      "expect": 500,
+      "page": 23,
+      "note": "p.22 has the placeholder XXXX but the table on p.23 gives 500 employees (industry partners) and 250 (foundations)"
+    },
+    {
+      "path": "evaluation.weights.technical_pct",
+      "expect": 80,
+      "page": 14
+    },
+    {
+      "path": "evaluation.weights.financial_pct",
+      "expect": 20,
+      "page": 14
+    },
+    {
+      "path": "evaluation.min_technical_score",
+      "expect": 50,
+      "page": 18
+    },
+    {
+      "path": "evaluation.bid_parameter",
+      "contains_any": ["share", "contribution"],
+      "page": 17
+    }
+  ]
+}

@@ -1,31 +1,50 @@
-You extract structured data from a tender / RFP document (consultancy, IT services, works, goods). The document is given above. Fill the JSON schema below from it.
+You extract structured data from a tender / RFP document (consultancy, engineering/design, IT services, works, PPP/partnership, goods). Any country, any currency. The document is given above. Fill the JSON schema below from it.
 
 GENERAL RULES
 - Use ONLY what this document states. If a value is not stated, use null (or an empty list). Never guess.
+- Every object in the schema must always be present. When nothing is stated for an object (for example project.project_cost), return the object with all its fields null and its lists empty. Never replace an object with null and never write a bare number or text instead of an object.
 - Never fill values from your knowledge of standard templates or "usual" defaults (for example a typical maximum number of JV members). Report a number only if this document states it. Where a Data Sheet or appendix amends a general clause, report the amended value; if the document says which clause prevails, follow it.
+- PLACEHOLDERS ARE NOT VALUES: "XXXX", "____", "[ ]", "<...>", "(name of ...)", "as per bid detail", "to be notified", "to be intimated later" all mean the value is NOT stated: use null. Never copy a placeholder into a field. But first check whether the value is given in a table that continues on the next page, in the Data Sheet or in an annexure; if it is, use that value.
 - Read the whole document, including tables, annexures, appendices, formats and scanned/image pages (read those from the page image). A table may continue on the next page without a header row: treat continuation rows as part of the same table and use the headers of its first page. Never stop a list or table early: read every numbered item to the end.
-- SAMPLE AND FORMAT PAGES: report formats, sample tables and blank forms often contain placeholders or illustrative numbers (for example "<source>", "Xx km", sample costs in a "format of DPR report"). These are NOT facts about this tender: never take project facts (cost, length, dates, names) from them. A form that is filled with this tender's own figures (for example a summary of the estimated cost) may be used.
-- If the document contradicts itself (for example sub-items add up to more than the stated maximum), copy the numbers as written. Do not correct or "fix" them.
-- Do not add up or compute totals yourself. Fill a total (key_person_months_total, all_staff_person_months_total) only if the document itself prints that total; otherwise null.
-- Amounts: INR numbers (1 lakh = 100000, 1 crore = 10000000). Keep the wording from the document in raw_text. If a figure is given both with and without taxes, put the figure INCLUDING taxes in value_inr, set includes_tax to true, and keep both figures in raw_text.
-- Dates: ISO YYYY-MM-DD, without time. If a date cannot be converted, copy the text as written.
+- SAMPLE AND FORMAT PAGES: report formats, sample tables, blank forms and worked examples often contain placeholders or illustrative numbers (for example "<source>", "Xx km", sample costs in a "format of DPR report", a sample salary calculation). These are NOT facts about this tender: never take project facts (cost, length, dates, names) from them. A form that is filled with this tender's own figures (for example a summary of the estimated cost) may be used.
+- If the document contradicts itself (for example sub-items add up to more than the stated maximum, or a total says 100 in one place and 500 in another), copy the numbers as written. Do not correct or "fix" them.
+- Do not add up or compute totals yourself. Fill a total (key_person_months_total, all_staff_person_months_total, evaluation.total_points) only if the document itself prints that total; otherwise null.
+
+MONEY, DATES, NUMBERS
+- identity.currency: ISO code of the currency the document uses (INR, USD, ...). Every money field is a plain number in that currency. Never convert between currencies. Use lakh = 100000 and crore = 10000000 only when the document uses them.
+- Amount.value is the figure WITHOUT taxes; Amount.value_with_tax is the figure INCLUDING taxes, only if the document states it. If a figure is given with and without tax (for example "Rs 5,000 + 18% GST (Rs 5,900)"), fill both. If only one figure is given and the document does not say it includes tax, put it in value. Keep the document's wording in raw_text. A "not to exceed" contract ceiling goes in project.estimated_contract_value.
+- Dates: ISO YYYY-MM-DD, without time. If a date cannot be converted, copy the text as written. A schedule line such as "proposal review: 28 Jan - 11 Feb" is not an opening date.
 - Percentages: plain numbers (5 means 5%), not fractions.
 - Enum fields: pick the closest allowed value; use "other" if nothing fits and put the document's own wording in the matching *_text field when one exists.
-- Security status (bid security, performance security): "required", "nil" (the document gives the amount as NIL / none needed; use "nil" even if a bid-securing declaration is permitted instead), "declaration_allowed" (only a bid-securing declaration is asked for, with no amount stated as NIL), or "not_stated" (the document does not mention it). null and "nil" mean different things: do not confuse them.
-- document_kind: "corrigendum" if the document is an addendum/corrigendum containing only changes; fill only the fields it changes. Otherwise "tender_document".
+
+SECURITIES
+- Status of bid security / performance security: "required"; "nil" (the document gives the amount as NIL / none needed; use "nil" even if a bid-securing declaration is permitted instead, and then set declaration_permitted = true); "declaration_allowed" (only a bid-securing declaration is asked for, with no amount stated as NIL); "not_stated" (the document does not mention it). null and "nil" mean different things: do not confuse them.
+- document_fee only if the document states a fee for buying/downloading the tender document.
+- project.estimated_contract_value: besides the Data Sheet, look in the financial-proposal forms (for example a "summary of costs" or cost-estimate form filled with this tender's figures).
+
+DOCUMENT TYPE AND METHOD
+- document_kind: "corrigendum" if the document is an addendum/corrigendum containing only changes (fill only the fields it changes); otherwise "tender_document".
+- family: "consultancy_rfp" (consultants, engineering/design/environmental services), "it_services_rfp", "works_bid", "ppp_partnership" (selection of a partner, licensee or concessionaire, often with an SPV), "goods_supply", otherwise "other".
+- selection_method: use the method the document names. If it only describes the mechanism (for example qualifications-based selection where price is opened only for the best-ranked firm) use the matching method and set selection_method_basis to "inferred".
+- contract_form "cost_plus_fixed_fee" for actual cost plus a fixed fee.
+- identity.no_of_covers: number of separate envelopes/covers the bid is submitted in (technical envelope + financial envelope = 2).
 - project.packages: only if the document lists two or more packages/lots.
 
 PERSONNEL AND EVALUATION
-- key_personnel.roles: list the key experts first, then sub-professional/support staff only if they are listed with roles. Include EVERY expert the document marks as conditional or as a replacement (for example needed only if tunnels are proposed, or only in hilly terrain), with is_conditional = true, the condition text (include the stated duration, such as "4 months") and the rate from the same note.
-- rate_inr_per_month and cost_inr come from the remuneration / cost estimate table (columns: position, rate, staff-months, amount). Read the columns carefully; if a figure cannot be matched to its role with certainty, use null.
+- key_personnel.roles: list the key experts first, then sub-professional/support staff only if they are listed with roles. Do not invent roles when the document names none. Notes under or after a staffing table ("required only if ...", "in case of ...") can add more roles: read them. Include EVERY expert the document marks as conditional or as a replacement (for example needed only if tunnels are proposed, or only in hilly terrain), with is_conditional = true, the condition text (include the stated duration, such as "4 months") and the rate from the same note.
+- rate_per_month and cost come from the remuneration / cost estimate table (columns: position, rate, staff-months, amount). Read the columns carefully; if a figure cannot be matched to its role with certainty, use null.
 - min_experience_years only if the document states a hard minimum that disqualifies a person. Marking bands such as "<15 years = 0 marks, 15-18 years = 11 marks" are scoring bands, NOT minimums: never copy them there.
 - Marks given to a role in the technical score go in technical_weight_points; the maximum of the individual CV scale in individual_max_points; a minimum pass percentage in min_score_pct.
 - Evaluation tree has three levels: criteria -> sub_criteria -> bands. Keep each band's text exactly as written ("> 10 to <= 20") and put its points separately. Give bands for every sub-criterion that has them. Do not compute scores yourself.
-- Combined-score weights go in evaluation.weights: technical_pct for the technical score; financial_pct ONLY for a score based on the price/financial proposal; any other component (a DPR or other rating, a quoted performance guarantee / PBG quote, and similar) goes in evaluation.weights.other with its own name.
+- Rated criteria: if criteria are rated on a scale (for example 0-5) and multiplied by a weight, put the scale top in evaluation.rating_scale_max, each criterion's weight in weight, and the points stated for the criterion in max_points. A criterion that is only Pass/Fail has is_pass_fail = true and no points. List every criterion of every evaluation stage (written proposal, interview, presentation, Q&A).
+- Combined-score weights go in evaluation.weights: technical_pct for the technical score; financial_pct ONLY for a score based on the price/financial proposal; any other component (a DPR or other rating, a quoted performance guarantee / PBG quote, and similar) goes in evaluation.weights.other with its own name. Example: weights 70 technical : 20 rating : 10 quoted guarantee -> technical_pct 70, financial_pct null, other = [rating 20, quoted guarantee 10].
+- evaluation.bid_parameter: what bidders compete on besides the technical score when it is not a plain price (for example an "industrial share percentage", an annuity, a premium).
+- qualification.financial: one Threshold per financial requirement (turnover, net worth, staff strength). If the document gives only a placeholder for the limit, keep the Threshold with value null.
 
 CONTRACT
-- Delay: liquidated damages and a separate "penalty for delay" can be different clauses with different rates. Put the clause that applies to delay in completing the services in contract.liquidated_damages; put any other delay-related clause in additional_conditions with category "delay damages".
+- contract.delay_damages: one entry per delay clause. Liquidated damages and a separate "penalty for delay" can be different clauses with different rates, in different parts of the document (General Conditions, Special Conditions, Data Sheet): search the whole document for every clause that charges money for delay and list each one with kind, rate_text, max_pct and basis.
+- duration_months only if the document states a duration or an end date you can read directly as a duration; do not work it out from a schedule.
 
 OTHER
-- Conditions that matter to a bidder but fit no field (local office, security audit, MSME exemptions and similar) go in additional_conditions: at most 10, one short sentence each.
+- Conditions that matter to a bidder but fit no field (local office, security audit, insurance, MSME exemptions and similar) go in additional_conditions: at most 10, one short sentence each.
 - Do not output any field that is not in the schema.

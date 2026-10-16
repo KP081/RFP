@@ -1,16 +1,27 @@
 """
-Universal tender / RFP extraction schema (v1).
+Universal tender / RFP extraction schema (v1.2).
 
 Design (based on research):
-- A universal CORE contains common information like identity, dates, securities, eligibility, and evaluation. These are common across consultancy RFPs, IT/SI RFPs, and works/HAM bids.
+- A universal CORE contains common information like identity, dates, securities, eligibility, and evaluation. These are common across consultancy RFPs, IT/SI RFPs, works/HAM bids, PPP/partnership bids and goods procurement.
 - Family-specific details go into GENERIC building blocks like `Threshold`, `ExperienceCriterion`, and `Criterion`, instead of separate fields. This allows the schema to support new RFP types without breaking.
 - If something does not fit into any block, it goes into `additional_conditions`. This helps us identify which fields should be added to the schema in the future.
 
 Rules for every field:
 - `None` or an empty list means "not found in the document." Never guess.
 - Fill document-specific defaults (such as "maximum 4 JV members") only if they are explicitly mentioned in the document.
-- Store amounts as INR numbers (1 lakh = 1e5, 1 crore = 1e7) and keep the original text alongside them.
+- Money is stored as plain numbers in the document's OWN currency (`identity.currency`, e.g. INR or USD); no conversion. 1 lakh = 1e5 and 1 crore = 1e7. Keep the original text alongside it.
+- `Amount.value` is the figure WITHOUT taxes; `Amount.value_with_tax` is the figure including taxes. Both are kept when the document gives both.
 - Store dates in ISO `YYYY-MM-DD` format. If the LLM returns dates in `dd.mm.yyyy` format, `normalize_date()` will handle the conversion.
+- Placeholders ("XXXX", "____", "As per bid detail", "to be notified") mean "not stated" -> `None`.
+
+v1.2 changes vs v1.1 (found while testing a US county A&E RFP and a Gujarat PPP-style RFP):
+- All `*_inr` fields are now currency-neutral (`value`, `amount`, `cost`, `rate_per_month`, ...), plus `identity.currency`.
+- `Amount`: `value` (net) + `value_with_tax` (replaces `value_inr` + `includes_tax`).
+- `Security.declaration_permitted`; `ContractForm.COST_PLUS_FIXED_FEE`.
+- `DocumentFamily.PPP`.
+- Evaluation: `rating_scale_max`, `total_points`, `bid_parameter`; `Criterion.weight` and `Criterion.is_pass_fail`.
+- `contract.liquidated_damages` -> `contract.delay_damages[]` (a document can have both liquidated damages and a penalty).
+- The LLM-facing root is `TenderExtractionLLM`; `TenderExtraction` adds the backend-filled `meta` (it has an open dict, which Gemini cannot take).
 
 For Gemini: Do not use recursive models or `dict[str, Any]`. Also, do not use `extra="forbid"` in LLM-facing models because it can cause errors with `additionalProperties`.
 
@@ -18,12 +29,13 @@ Strict validation will happen after extraction, not in the schema.
 """
 
 import re
+import typing
 from datetime import datetime
-from enum import StrEnum
+from enum import Enum, StrEnum
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
-SCHEMA_VERSION = "1.1"
+SCHEMA_VERSION = "1.2"
 
 
 # --------------------------------------------------------------------------
@@ -42,8 +54,8 @@ _DATE_FORMATS = (
 
 
 def normalize_date(value: object) -> str | None:
-    """'25.03.2026, 05:00 PM' -> '2026-03-25'. Parse na ho to raw text wapas
-    (taaki data na jaye); baad me review flag lag jayega."""
+    """'25.03.2026, 05:00 PM' -> '2026-03-25'. If it cannot be parsed the raw text
+    is returned (so no data is lost); a review flag is raised later."""
     if value is None:
         return None
 
@@ -73,27 +85,92 @@ def is_iso_date(value: str | None) -> bool:
         return False
 
 
+def _enum_class(annotation):
+    """X or X | None -> the Enum class X, else None."""
+    if isinstance(annotation, type) and issubclass(annotation, Enum):
+        return annotation
+
+    for arg in typing.get_args(annotation):
+        if isinstance(arg, type) and issubclass(arg, Enum):
+            return arg
+
+    return None
+
+
+_DROP = object()
+
+
+def _closest_member(enum_class, text: str):
+    """'QBS' -> 'qbs', 'Cost Plus' -> 'other' (if the enum has it), else drop the value."""
+    normal = re.sub(r"[\s\-]+", "_", text.strip().lower())
+    values = {member.value for member in enum_class}
+
+    if normal in values:
+        return normal
+
+    return "other" if "other" in values else _DROP
+
+
+class LLMBase(BaseModel):
+    """Base of every model the LLM fills.
+
+    The model is not perfect, so we are forgiving where it is safe:
+    - `null` for a field that has a default_factory (nested object, list) means "use the default".
+      Scalar fields keep their null.
+    - A value that is not in a closed set (enum) becomes "other" when the set has it
+      (that is what the prompt asks for anyway), otherwise the field falls back to its default.
+    Real errors (a percent of 150, a negative number) still fail validation.
+    """
+
+    @model_validator(mode="before")
+    @classmethod
+    def _be_forgiving(cls, data):
+        if not isinstance(data, dict):
+            return data
+
+        cleaned = {}
+        for key, value in data.items():
+            field = cls.model_fields.get(key)
+
+            if field is not None:
+                if value is None and field.default_factory is not None:
+                    continue
+
+                enum_class = _enum_class(field.annotation)
+                if enum_class is not None and isinstance(value, str):
+                    value = _closest_member(enum_class, value)
+                    if value is _DROP:
+                        continue
+
+            cleaned[key] = value
+
+        return cleaned
+
+
 # --------------------------------------------------------------------------
 # enums
 # --------------------------------------------------------------------------
 
 
 class DocumentFamily(StrEnum):
-    CONSULTANCY = "consultancy_rfp"  # DPR, AE, IE, PMC, financial, ...
+    CONSULTANCY = "consultancy_rfp"  # DPR, AE, IE, PMC, A&E design, financial, ...
     IT_SERVICES = "it_services_rfp"  # system integrator, software, website
     WORKS = "works_bid"  # EPC / HAM / BOT / item-rate works
-    GOODS = "goods_supply"
+    PPP = "ppp_partnership"  # concession / partner-selection with SPV, HAM, BOT, AIP
+    GOODS = "goods_supply"  # equipment / material procurement
     OTHER = "other"
 
 
 class DocumentKind(StrEnum):
-    TENDER_DOCUMENT = "tender_document"  # asli RFP / tender
-    CORRIGENDUM = "corrigendum"  # addendum / corrigendum: sirf badlav, poora data nahi
+    TENDER_DOCUMENT = "tender_document"  # a real RFP / tender
+    CORRIGENDUM = (
+        "corrigendum"  # addendum / corrigendum: only changes, not the full data
+    )
     OTHER = "other"
 
 
 class AssignmentType(StrEnum):
-    """Closed set filter/analytics ke liye. Kuch na mile to OTHER + assignment_type_text."""
+    """Closed set for filters/analytics. If nothing fits: OTHER + assignment_type_text."""
 
     DPR = "dpr"
     FEASIBILITY_STUDY = "feasibility_study"
@@ -118,13 +195,13 @@ class SelectionMethod(StrEnum):
     CQS = "cqs"
     SSS = "sss"
     L1_LOWEST_PRICE = "l1_lowest_price"
-    BID_PARAMETER = "bid_parameter"  # HAM/BOT jaise bids
+    BID_PARAMETER = "bid_parameter"  # HAM/BOT-like bids
     OTHER = "other"
 
 
 class Basis(StrEnum):
-    STATED = "stated"  # document me seedha likha hai
-    INFERRED = "inferred"  # formula/weights se nikala (e.g. S = ST*Tw + SF*Fw)
+    STATED = "stated"  # written directly in the document
+    INFERRED = "inferred"  # derived from a formula/weights (e.g. S = ST*Tw + SF*Fw)
 
 
 class ContractForm(StrEnum):
@@ -133,20 +210,25 @@ class ContractForm(StrEnum):
     UNIT_RATE = "unit_rate"
     PERCENTAGE = "percentage"
     ANNUITY = "annuity"
+    COST_PLUS_FIXED_FEE = (
+        "cost_plus_fixed_fee"  # actual cost + fixed fee (common in US A&E)
+    )
     OTHER = "other"
 
 
 class SecurityStatus(StrEnum):
     REQUIRED = "required"
-    NIL = "nil"  # document saaf likhta hai ki nahi chahiye
-    DECLARATION_ALLOWED = "declaration_allowed"  # bid securing declaration chalega
-    NOT_STATED = "not_stated"  # document me zikr hi nahi
+    NIL = "nil"  # document clearly says none is needed (amount NIL)
+    DECLARATION_ALLOWED = (
+        "declaration_allowed"  # only a bid-securing declaration is asked for
+    )
+    NOT_STATED = "not_stated"  # document does not mention it at all
 
 
 class ThresholdBasis(StrEnum):
-    ABSOLUTE_INR = "absolute_inr"
-    PCT_OF_ESTIMATED_COST = "pct_of_estimated_cost"  # consultancy/contract cost ka %
-    PCT_OF_PROJECT_COST = "pct_of_project_cost"  # civil/EPC cost ka %
+    ABSOLUTE_AMOUNT = "absolute_amount"  # a money amount in the document's currency
+    PCT_OF_ESTIMATED_COST = "pct_of_estimated_cost"  # % of consultancy/contract cost
+    PCT_OF_PROJECT_COST = "pct_of_project_cost"  # % of civil/EPC project cost
     MULTIPLE_OF_PROJECT_LENGTH = "multiple_of_project_length"
     COUNT = "count"
     OTHER = "other"
@@ -173,6 +255,12 @@ class PersonnelCategory(StrEnum):
     SUPPORT = "support"
 
 
+class DelayDamageKind(StrEnum):
+    LIQUIDATED_DAMAGES = "liquidated_damages"
+    PENALTY = "penalty"
+    OTHER = "other"
+
+
 class Confidence(StrEnum):
     HIGH = "high"
     MEDIUM = "medium"
@@ -184,25 +272,44 @@ class Confidence(StrEnum):
 # --------------------------------------------------------------------------
 
 
-class Amount(BaseModel):
-    value_inr: float | None = Field(
+class Amount(LLMBase):
+    value: float | None = Field(
         default=None,
         ge=0,
-        description="Amount in INR rupees (lakh=1e5, crore=1e7). null if not stated.",
+        description=(
+            "Amount WITHOUT taxes (GST/VAT), as a plain number in the document's currency "
+            "(lakh=1e5, crore=1e7). If the document gives one figure and does not say it "
+            "includes tax, put it here. null if not stated."
+        ),
+    )
+    value_with_tax: float | None = Field(
+        default=None,
+        ge=0,
+        description="The same amount INCLUDING taxes, only if the document states that figure.",
     )
     raw_text: str | None = Field(
         default=None,
-        description="Exact wording from the document, e.g. 'Rs 11,64,00,510'.",
-    )
-    includes_tax: bool | None = Field(
-        default=None,
-        description="True if figure includes GST/taxes, False if it excludes them, null if unclear.",
+        description="Exact wording from the document, e.g. 'Rs 11,64,00,510' or both figures.",
     )
 
+    @model_validator(mode="before")
+    @classmethod
+    def _plain_value(cls, data):
+        # The model sometimes writes 325000 or "Rs 5,000" instead of an object.
+        if isinstance(data, bool):
+            return data
+        if isinstance(data, (int, float)):
+            return {"value": data}
+        if isinstance(data, str):
+            return {"raw_text": data}
+        return data
 
-class Security(BaseModel):
+
+class Security(LLMBase):
     status: SecurityStatus = SecurityStatus.NOT_STATED
-    amount_inr: float | None = Field(default=None, ge=0)
+    amount: float | None = Field(
+        default=None, ge=0, description="Fixed amount in the document's currency."
+    )
     percent: float | None = Field(default=None, ge=0, le=100)
     percent_basis: str | None = Field(
         default=None, description="What the percent applies to, e.g. 'contract price'."
@@ -215,6 +322,10 @@ class Security(BaseModel):
         default=None,
         description="True if the bidder quotes the security amount in the bid.",
     )
+    declaration_permitted: bool | None = Field(
+        default=None,
+        description="True if a bid-securing declaration is accepted instead of the security.",
+    )
     exemptions: list[str] = Field(
         default_factory=list, description="Who is exempt, e.g. ['MSME', 'Startup']."
     )
@@ -224,12 +335,16 @@ class Security(BaseModel):
     )
 
 
-class Threshold(BaseModel):
-    """Ek numeric eligibility limit: turnover, net worth, staff strength ..."""
+class Threshold(LLMBase):
+    """One numeric eligibility limit: turnover, net worth, staff strength ..."""
 
     kind: ThresholdKind = ThresholdKind.OTHER
     label: str = Field(description="e.g. 'average annual turnover', 'net worth'.")
-    value: float | None = Field(default=None, description="Numeric limit as written.")
+    value: float | None = Field(
+        default=None,
+        description="Numeric limit as written (money in the document's currency). null if the "
+        "document only has a placeholder such as 'XXXX'.",
+    )
     basis: ThresholdBasis = ThresholdBasis.OTHER
     period_years: int | None = Field(
         default=None, description="Look-back window in years."
@@ -242,8 +357,8 @@ class Threshold(BaseModel):
     raw_text: str | None = None
 
 
-class ExperienceCriterion(BaseModel):
-    """Generic experience requirement. DPR/AE/IT/works sab isi me aate hain."""
+class ExperienceCriterion(LLMBase):
+    """Generic experience requirement. DPR/AE/IT/works/A&E all fit here."""
 
     category: str = Field(
         description="Short label, e.g. 'DPR preparation', 'project supervision', 'website development'."
@@ -252,8 +367,8 @@ class ExperienceCriterion(BaseModel):
     min_count: int | None = Field(
         default=None, description="Minimum number of projects."
     )
-    min_single_value_inr: float | None = Field(default=None, ge=0)
-    min_aggregate_value_inr: float | None = Field(default=None, ge=0)
+    min_single_value: float | None = Field(default=None, ge=0)
+    min_aggregate_value: float | None = Field(default=None, ge=0)
     min_aggregate_value_multiple_of_cost: float | None = Field(
         default=None,
         description="Aggregate value as multiple of estimated project cost (2 = 2x).",
@@ -273,14 +388,14 @@ class ExperienceCriterion(BaseModel):
     raw_text: str | None = None
 
 
-class AdjustmentFactor(BaseModel):
+class AdjustmentFactor(LLMBase):
     """Multiplication/enhancement factors, e.g. 2-lane experience x0.4."""
 
     condition: str
     factor: float
 
 
-class Certification(BaseModel):
+class Certification(LLMBase):
     name: str = Field(description="e.g. 'CMMI', 'ISO 27001', 'INFRACON registration'.")
     min_level: str | None = Field(default=None, description="e.g. 'Level 3'.")
     required: bool | None = Field(
@@ -288,8 +403,8 @@ class Certification(BaseModel):
     )
 
 
-class Condition(BaseModel):
-    """Outlet: jo cheez kisi typed field me fit nahi hoti."""
+class Condition(LLMBase):
+    """Outlet: whatever does not fit a typed field."""
 
     category: str = Field(
         description="One or two words, e.g. 'local office', 'security audit'."
@@ -302,7 +417,7 @@ class Condition(BaseModel):
 # --------------------------------------------------------------------------
 
 
-class Contact(BaseModel):
+class Contact(LLMBase):
     name: str | None = None
     designation: str | None = None
     email: str | None = None
@@ -312,11 +427,14 @@ class Contact(BaseModel):
     )
 
 
-class Identity(BaseModel):
+class Identity(LLMBase):
     tender_code: str | None = None
     rfp_number: str | None = None
     nit_number: str | None = None
-    title: str | None = None
+    title: str | None = Field(
+        default=None,
+        description="Title of THIS tender. null if the document only has a placeholder.",
+    )
     title_full: str | None = None
     authority_name: str | None = None
     client: str | None = Field(
@@ -327,6 +445,11 @@ class Identity(BaseModel):
     )
     tender_type: str | None = Field(
         default=None, description="e.g. 'domestic', 'international'."
+    )
+    currency: str | None = Field(
+        default=None,
+        description="ISO 4217 code of the currency of the money amounts in this document, "
+        "e.g. 'INR', 'USD'. All money fields are in this currency.",
     )
     assignment_type: AssignmentType | None = None
     assignment_type_text: str | None = Field(
@@ -340,22 +463,25 @@ class Identity(BaseModel):
         description="'inferred' if only a combined-score formula is given and the method is not named.",
     )
     contract_form: ContractForm | None = None
-    no_of_covers: int | None = None
+    no_of_covers: int | None = Field(
+        default=None,
+        description="Number of separate proposal envelopes/covers, e.g. technical + financial = 2.",
+    )
     eportal_url: str | None = None
     contact: Contact = Field(default_factory=Contact)
 
 
-class PackageItem(BaseModel):
+class PackageItem(LLMBase):
     package_id: str | None = None
     name: str | None = None
     state: str | None = None
     length_km: float | None = Field(default=None, ge=0)
-    project_cost_inr: float | None = Field(default=None, ge=0)
-    estimated_value_inr: float | None = Field(default=None, ge=0)
+    project_cost: float | None = Field(default=None, ge=0)
+    estimated_value: float | None = Field(default=None, ge=0)
     duration_months: float | None = Field(default=None, ge=0)
 
 
-class Project(BaseModel):
+class Project(LLMBase):
     description: str | None = None
     states: list[str] = Field(default_factory=list)
     routes: list[str] = Field(
@@ -372,11 +498,13 @@ class Project(BaseModel):
     )
     estimated_contract_value: Amount = Field(
         default_factory=Amount,
-        description="Estimated cost of THIS assignment/contract (e.g. consultancy cost).",
+        description="Estimated cost / ceiling of THIS assignment/contract (e.g. consultancy cost, "
+        "'not to exceed' amount).",
     )
     project_cost: Amount = Field(
         default_factory=Amount,
-        description="Cost of the underlying project (e.g. civil cost of the highway). Different from contract value.",
+        description="Cost of the underlying project (e.g. civil cost, construction funding). "
+        "Different from contract value.",
     )
     packages: list[PackageItem] = Field(
         default_factory=list,
@@ -385,7 +513,7 @@ class Project(BaseModel):
     )
 
 
-class PreBid(BaseModel):
+class PreBid(LLMBase):
     required: bool | None = None
     date: str | None = None
     place: str | None = None
@@ -396,14 +524,14 @@ class PreBid(BaseModel):
         return normalize_date(v)
 
 
-class Dates(BaseModel):
+class Dates(LLMBase):
     published: str | None = None
     download_start: str | None = None
     download_end: str | None = None
     clarification_end: str | None = None
     submission_start: str | None = None
     submission_end: str | None = Field(
-        default=None, description="Online submission deadline."
+        default=None, description="Proposal submission deadline."
     )
     hard_copy_deadline: str | None = Field(
         default=None,
@@ -437,14 +565,14 @@ class Dates(BaseModel):
         return normalize_date(v)
 
 
-class Securities(BaseModel):
+class Securities(LLMBase):
     document_fee: Amount = Field(default_factory=Amount)
     bid_security: Security = Field(default_factory=Security)
     performance_security: Security = Field(default_factory=Security)
     additional_performance_security: Security = Field(default_factory=Security)
 
 
-class JointVenture(BaseModel):
+class JointVenture(LLMBase):
     allowed: bool | None = None
     max_members: int | None = Field(default=None, ge=1)
     lead_min_share_pct: float | None = Field(default=None, ge=0, le=100)
@@ -463,14 +591,14 @@ class JointVenture(BaseModel):
     mou_required: bool | None = None
 
 
-class Subcontracting(BaseModel):
+class Subcontracting(LLMBase):
     allowed: bool | None = None
     max_pct: float | None = Field(default=None, ge=0, le=100)
     scope: str | None = None
     prior_approval_required: bool | None = None
 
 
-class Eligibility(BaseModel):
+class Eligibility(LLMBase):
     entity_types: list[str] = Field(default_factory=list)
     registrations: list[str] = Field(
         default_factory=list, description="e.g. GSTIN, PAN, EPF, ESI, INFRACON."
@@ -496,13 +624,13 @@ class Eligibility(BaseModel):
     )
 
 
-class BidCapacity(BaseModel):
+class BidCapacity(LLMBase):
     required: bool | None = None
     formula: str | None = None
     description: str | None = None
 
 
-class Qualification(BaseModel):
+class Qualification(LLMBase):
     financial: list[Threshold] = Field(default_factory=list)
     experience: list[ExperienceCriterion] = Field(default_factory=list)
     adjustment_factors: list[AdjustmentFactor] = Field(default_factory=list)
@@ -512,43 +640,71 @@ class Qualification(BaseModel):
 # ---- evaluation: 3 fixed levels (criteria -> sub_criteria -> bands), no recursion ----
 
 
-class ScoreBand(BaseModel):
+class ScoreBand(LLMBase):
     range_text: str = Field(
         description="Band as written, e.g. '>10 to <=20', '5 projects'."
     )
     points: float | None = None
 
 
-class SubCriterion(BaseModel):
+class SubCriterion(LLMBase):
     name: str
     max_points: float | None = None
     bands: list[ScoreBand] = Field(default_factory=list)
 
 
-class Criterion(BaseModel):
+class Criterion(LLMBase):
     name: str
-    max_points: float | None = None
+    max_points: float | None = Field(
+        default=None, description="Points stated for the criterion, e.g. '(20 points)'."
+    )
+    weight: float | None = Field(
+        default=None,
+        description="Weight, if the document scores each criterion by a rating (e.g. 0-5) x weight.",
+    )
+    is_pass_fail: bool | None = Field(
+        default=None,
+        description="True for criteria that are only Pass/Fail (not scored).",
+    )
     sub_criteria: list[SubCriterion] = Field(default_factory=list)
 
 
-class NamedWeight(BaseModel):
+class NamedWeight(LLMBase):
     name: str
     weight_pct: float = Field(ge=0, le=100)
 
 
-class EvaluationWeights(BaseModel):
+class EvaluationWeights(LLMBase):
     technical_pct: float | None = Field(default=None, ge=0, le=100)
-    financial_pct: float | None = Field(default=None, ge=0, le=100)
+    financial_pct: float | None = Field(
+        default=None,
+        ge=0,
+        le=100,
+        description="ONLY a score based on the price/financial proposal.",
+    )
     other: list[NamedWeight] = Field(
         default_factory=list,
-        description="e.g. DPR rating, PBG quote in newer NHAI RFPs.",
+        description="Any other component, e.g. DPR rating, quoted PBG, in newer NHAI RFPs.",
     )
 
 
-class Evaluation(BaseModel):
+class Evaluation(LLMBase):
     weights: EvaluationWeights = Field(default_factory=EvaluationWeights)
     formula_text: str | None = None
     min_technical_score: float | None = None
+    rating_scale_max: float | None = Field(
+        default=None,
+        description="Top of the rating scale if criteria are rated, e.g. 5 for 0-5.",
+    )
+    total_points: float | None = Field(
+        default=None,
+        description="Total points as stated in the document's summary table.",
+    )
+    bid_parameter: str | None = Field(
+        default=None,
+        description="What bidders compete on besides technical score, e.g. 'industrial share "
+        "percentage', 'annuity', 'premium', 'quoted PBG'.",
+    )
     stages: list[str] = Field(
         default_factory=list,
         description="e.g. ['pre-qualification', 'technical', 'commercial'].",
@@ -560,7 +716,7 @@ class Evaluation(BaseModel):
     )
 
 
-class KeyPersonnel(BaseModel):
+class KeyPersonnel(LLMBase):
     role: str
     category: PersonnelCategory = PersonnelCategory.KEY
     count: int | None = None
@@ -588,13 +744,13 @@ class KeyPersonnel(BaseModel):
         default=None, description="Max marks of the individual CV scale (e.g. 100)."
     )
     min_score_pct: float | None = Field(default=None, ge=0, le=100)
-    rate_inr_per_month: float | None = Field(default=None, ge=0)
-    cost_inr: float | None = Field(default=None, ge=0)
+    rate_per_month: float | None = Field(default=None, ge=0)
+    cost: float | None = Field(default=None, ge=0)
     is_conditional: bool = False
     condition: str | None = None
 
 
-class KeyPersonnelSection(BaseModel):
+class KeyPersonnelSection(LLMBase):
     summary: str | None = Field(
         default=None,
         description="At most 2 sentences: how many key / sub-professional / support staff and total person-months.",
@@ -611,26 +767,33 @@ class KeyPersonnelSection(BaseModel):
     )
 
 
-class Phase(BaseModel):
+class Phase(LLMBase):
     name: str = Field(
         description="e.g. 'construction', 'warranty', 'O&M', 'maintenance'."
     )
     months: float | None = Field(default=None, ge=0)
 
 
-class PaymentStage(BaseModel):
+class PaymentStage(LLMBase):
     stage: str
     percent: float | None = Field(default=None, ge=0, le=100)
 
 
-class LiquidatedDamages(BaseModel):
+class DelayDamage(LLMBase):
+    """One delay clause. A document can have several (e.g. liquidated damages AND a penalty)."""
+
+    kind: DelayDamageKind = DelayDamageKind.OTHER
     rate_text: str | None = Field(
         default=None, description="e.g. '0.05% of contract price per day'."
     )
     max_pct: float | None = Field(default=None, ge=0, le=100)
+    basis: str | None = Field(
+        default=None,
+        description="What it is computed on, e.g. 'monthly bill', 'contract price'.",
+    )
 
 
-class ContractTerms(BaseModel):
+class ContractTerms(LLMBase):
     duration_months: float | None = Field(default=None, ge=0)
     commencement: str | None = Field(
         default=None, description="e.g. 'within 30 days of signing'."
@@ -640,11 +803,11 @@ class ContractTerms(BaseModel):
     )
     phases: list[Phase] = Field(default_factory=list)
     payment_stages: list[PaymentStage] = Field(default_factory=list)
-    liquidated_damages: LiquidatedDamages = Field(default_factory=LiquidatedDamages)
+    delay_damages: list[DelayDamage] = Field(default_factory=list)
 
 
 # --------------------------------------------------------------------------
-# system block (LLM can't put, backend put it)
+# system block (LLM can't fill it; the backend does)
 # --------------------------------------------------------------------------
 
 
@@ -664,7 +827,9 @@ class ExtractionMeta(BaseModel):
 # --------------------------------------------------------------------------
 
 
-class TenderExtractionLLM(BaseModel):
+class TenderExtractionLLM(LLMBase):
+    """Everything the LLM fills. This is the schema that goes into the prompt."""
+
     document_kind: DocumentKind = DocumentKind.TENDER_DOCUMENT
     family: DocumentFamily = DocumentFamily.OTHER
     identity: Identity = Field(default_factory=Identity)
@@ -680,11 +845,12 @@ class TenderExtractionLLM(BaseModel):
 
 
 class TenderExtraction(TenderExtractionLLM):
+    """LLM part + backend-filled `meta` (has an open dict: never send this to Gemini)."""
+
     meta: ExtractionMeta = Field(default_factory=ExtractionMeta)
 
 
-# Section name -> model. ExtractionService will loop through this mapping,
-# and each model will define the response_schema for that section's LLM call.
+# Section name -> model. Kept for per-section calls if we ever go back to them.
 SECTION_MODELS: dict[str, type[BaseModel]] = {
     "identity": Identity,
     "project": Project,
