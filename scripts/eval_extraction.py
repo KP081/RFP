@@ -19,6 +19,7 @@ Check kinds (one per check):
     "expect_any": [..]     any of these values
     "contains": "text"     text contains it (for lists: any item contains it)
     "contains_any": [..]   text contains any of these
+    "min": number          the value is a number >= this (use with path#len for "at least N items")
 "trap": true marks a hallucination test: the document does NOT state this value (blank,
 placeholder, sample page ...). A failing trap means the model invented something.
 
@@ -188,11 +189,19 @@ def run_check(data: dict, check: dict) -> tuple[bool, object]:
     if "contains_any" in check:
         return any(_contains(got, option) for option in check["contains_any"]), got
 
+    if "min" in check:
+        return (
+            isinstance(got, (int, float))
+            and not isinstance(got, bool)
+            and got >= check["min"],
+            got,
+        )
+
     raise ValueError(f"check has no expectation: {check}")
 
 
 def expected_text(check: dict) -> str:
-    for key in ("expect", "expect_any", "contains", "contains_any"):
+    for key in ("expect", "expect_any", "contains", "contains_any", "min"):
         if key in check:
             return f"{key}={json.dumps(check[key], ensure_ascii=False)}"
     return "?"

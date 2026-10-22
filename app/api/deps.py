@@ -4,6 +4,7 @@ from app.core.config import get_settings
 from app.repositories import build_repository
 from app.repositories.base import RFPRepository
 from app.services.embeddings import EmbeddingService
+from app.services.extraction_service import ExtractionService
 from app.services.ingestion_service import IngestionService
 from app.services.llm_service import LLMService
 from app.services.qdrant_service import QdrantService
@@ -36,6 +37,11 @@ def get_retrieval_service() -> RetrievalService:
 
 
 @lru_cache
+def get_extraction_service() -> ExtractionService:
+    return ExtractionService(llm_service=LLMService())
+
+
+@lru_cache
 def get_rfp_service() -> RFPService:
     ingestion = IngestionService(
         embedding_service=get_embedding_service(),
@@ -45,6 +51,7 @@ def get_rfp_service() -> RFPService:
         repository=get_rfp_repository(),
         ingestion_service=ingestion,
         qdrant_service=get_qdrant_service(),
+        extraction_service_factory=get_extraction_service,  # built on first use
     )
 
 

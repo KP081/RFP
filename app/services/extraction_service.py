@@ -1,5 +1,6 @@
 import hashlib
 import logging
+import re
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -81,7 +82,7 @@ class ExtractionService:
             if uploaded is not None:
                 self.llm_service.delete_file(uploaded)
 
-        fill_derived(result.data)
+        flags.extend(fill_derived(result.data))
         flags.extend(consistency_flags(result.data))
 
         meta = ExtractionMeta(
@@ -108,6 +109,14 @@ class ExtractionService:
             seconds=time.time() - started,
         )
 
+    def fingerprint(self, file_path: Path, mode: str | None = None) -> str:
+        """Everything that changes the result besides the file itself (used as a cache key)."""
+        template = load_prompt(self.settings.extract_prompt_file)
+        prompt_hash = hashlib.sha256(template.encode("utf-8")).hexdigest()[:12]
+        mode = self._resolve_mode(file_path, mode)
+
+        return f"{SCHEMA_VERSION}|{self.llm_service.model}|{prompt_hash}|{mode}"
+
     def _resolve_mode(self, file_path: Path, mode: str | None) -> str:
         mode = mode or self.settings.extract_context
 
@@ -128,28 +137,47 @@ class ExtractionService:
 # ---------- derived values and free consistency checks (no LLM) ----------
 
 
-def fill_derived(doc: TenderExtractionLLM) -> None:
-    """Totals are computed by code, never by the model.
+_TECHNICAL = re.compile(r"\b(technical|quality)\b", re.IGNORECASE)
+_FINANCIAL = re.compile(r"\b(financial|price|commercial)\b", re.IGNORECASE)
 
-    If the document prints a total the model may have copied it (kept, and
-    consistency_flags compares it with the roles). If it is null we fill the sum
-    of the non-conditional key roles.
+
+def fill_derived(doc: TenderExtractionLLM) -> list[str]:
+    """Fixes done by code, never by the model. Returns notes for meta.review_flags.
+
+    1. Totals are computed by code: if the document prints a total the model may have copied
+       it (kept; consistency_flags compares it with the roles), otherwise we fill the sum of
+       the non-conditional key roles.
+    2. The model sometimes files the technical or financial weight under weights.other.
+       If technical_pct / financial_pct is empty, move that entry up (and say so).
     """
+    notes: list[str] = []
+
     section = doc.key_personnel
+    if section.key_person_months_total is None:
+        months = [
+            role.person_months
+            for role in section.roles
+            if role.category == PersonnelCategory.KEY
+            and not role.is_conditional
+            and role.person_months is not None
+        ]
+        if months:
+            section.key_person_months_total = round(sum(months), 2)
 
-    if section.key_person_months_total is not None:
-        return
+    weights = doc.evaluation.weights
+    kept = []
+    for item in weights.other:
+        if weights.technical_pct is None and _TECHNICAL.search(item.name):
+            weights.technical_pct = item.weight_pct
+            notes.append(f"weights: moved '{item.name}' from other to technical_pct")
+        elif weights.financial_pct is None and _FINANCIAL.search(item.name):
+            weights.financial_pct = item.weight_pct
+            notes.append(f"weights: moved '{item.name}' from other to financial_pct")
+        else:
+            kept.append(item)
+    weights.other = kept
 
-    months = [
-        role.person_months
-        for role in section.roles
-        if role.category == PersonnelCategory.KEY
-        and not role.is_conditional
-        and role.person_months is not None
-    ]
-
-    if months:
-        section.key_person_months_total = round(sum(months), 2)
+    return notes
 
 
 def consistency_flags(doc: TenderExtractionLLM) -> list[str]:

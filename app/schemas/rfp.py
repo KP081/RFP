@@ -9,8 +9,19 @@ def _now() -> datetime:
 
 
 class RFPStatus(StrEnum):
+    """Status of INGESTION (parse + embed for Q&A)."""
+
     PROCESSING = "processing"
     READY = "ready"
+    FAILED = "failed"
+
+
+class ExtractionStatus(StrEnum):
+    """Status of the structured EXTRACTION (independent of ingestion)."""
+
+    NOT_STARTED = "not_started"
+    RUNNING = "running"
+    DONE = "done"
     FAILED = "failed"
 
 
@@ -29,6 +40,16 @@ class RFPRecord(BaseModel):
     created_at: datetime = Field(default_factory=_now)
     updated_at: datetime = Field(default_factory=_now)
 
+    # ---- structured extraction (old records without these fields still load) ----
+    extraction_status: ExtractionStatus = ExtractionStatus.NOT_STARTED
+    extraction_error: str | None = None
+    extraction_key: str | None = None  # file hash + schema + model + prompt + mode
+    extraction_needs_review: bool | None = None
+    extraction_prompt_tokens: int | None = None
+    extraction_output_tokens: int | None = None
+    extraction_seconds: float | None = None
+    extracted_at: datetime | None = None
+
 
 class RFPResponse(BaseModel):
     """For Frontend"""
@@ -42,3 +63,8 @@ class RFPResponse(BaseModel):
     error: str | None = None
     created_at: datetime
     updated_at: datetime
+
+    extraction_status: ExtractionStatus = ExtractionStatus.NOT_STARTED
+    extraction_error: str | None = None
+    extraction_needs_review: bool | None = None
+    extracted_at: datetime | None = None

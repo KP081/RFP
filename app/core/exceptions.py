@@ -24,3 +24,11 @@ class LLMError(AppError):
 
 class DuplicateRFPError(AppError):
     status_code = 409
+
+
+class ExtractionRunningError(AppError):
+    status_code = 409
+
+
+class ExtractionNotReadyError(AppError):
+    status_code = 409

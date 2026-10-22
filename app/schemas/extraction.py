@@ -222,6 +222,7 @@ class SecurityStatus(StrEnum):
     DECLARATION_ALLOWED = (
         "declaration_allowed"  # only a bid-securing declaration is asked for
     )
+    CONDITIONAL = "conditional"  # only required if a stated condition happens (e.g. abnormally low bid)
     NOT_STATED = "not_stated"  # document does not mention it at all
 
 
@@ -325,6 +326,11 @@ class Security(LLMBase):
     declaration_permitted: bool | None = Field(
         default=None,
         description="True if a bid-securing declaration is accepted instead of the security.",
+    )
+    condition: str | None = Field(
+        default=None,
+        description="When status is 'conditional': the condition in one sentence, "
+        "e.g. 'only if the winning bid is below 85% of the average bid'.",
     )
     exemptions: list[str] = Field(
         default_factory=list, description="Who is exempt, e.g. ['MSME', 'Startup']."
@@ -702,8 +708,8 @@ class Evaluation(LLMBase):
     )
     bid_parameter: str | None = Field(
         default=None,
-        description="What bidders compete on besides technical score, e.g. 'industrial share "
-        "percentage', 'annuity', 'premium', 'quoted PBG'.",
+        description="What bidders bid on besides the technical score when it is not a plain price, "
+        "e.g. 'industrial share percentage', 'annuity', 'premium'.",
     )
     stages: list[str] = Field(
         default_factory=list,

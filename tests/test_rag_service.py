@@ -47,7 +47,11 @@ def test_rag_rejects_unrelated_question():
     print("\n===== SOURCES =====")
     print(result["sources"])
 
-    assert result["answer"] == (
-        "I could not find relevant information in the document."
-    )
-    assert result["sources"] == []
+    NO_ANSWER = {
+        "I could not find relevant information in the document.",  # koi chunk threshold se upar nahi
+        "I could not find enough information in the provided document.",  # LLM ne prompt ke hisaab se mana kiya
+    }
+
+    assert result["answer"] in NO_ANSWER
+    if result["answer"] == "I could not find relevant information in the document.":
+        assert result["sources"] == []

@@ -341,3 +341,15 @@ def test_valid_enum_values_are_untouched():
 
     assert doc.identity.contract_form.value == "cost_plus_fixed_fee"
     assert doc.securities.bid_security.status.value == "nil"
+
+
+def test_conditional_security_keeps_its_condition():
+    sec = Security(
+        status=SecurityStatus.CONDITIONAL,
+        percent=30,
+        percent_basis="differential between the winning bid and the average bid",
+        condition="only if the winning bid is below 85% of the average bid",
+    )
+
+    assert sec.status.value == "conditional" and sec.percent == 30
+    assert "85%" in sec.condition

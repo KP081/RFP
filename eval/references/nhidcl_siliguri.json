@@ -1,0 +1,233 @@
+{
+  "name": "nhidcl_siliguri",
+  "pdf": "uploads/rfp_4_0_1.pdf",
+  "about": "NHIDCL Siliguri-Guwahati 4-lane DPR RFP (376 pages, last pages are scanned office orders). HOLD-OUT: never used to tune the prompt. All facts below were checked against the PDF.",
+  "checks": [
+    {
+      "path": "document_kind",
+      "expect": "tender_document",
+      "page": 1
+    },
+    {
+      "path": "family",
+      "expect": "consultancy_rfp",
+      "page": 6
+    },
+    {
+      "path": "identity.currency",
+      "expect": "INR",
+      "page": 3
+    },
+    {
+      "path": "identity.rfp_number",
+      "expect": "NHIDCL/DPR/Siliguri-Guwahati/2025-26",
+      "page": 6
+    },
+    {
+      "path": "identity.authority_name",
+      "contains": "Infrastructure Development",
+      "page": 6
+    },
+    {
+      "path": "identity.selection_method",
+      "expect": "qcbs",
+      "page": 25
+    },
+    {
+      "path": "identity.no_of_covers",
+      "expect": 2,
+      "page": 3
+    },
+    {
+      "path": "project.length_km",
+      "expect": 400,
+      "page": 32
+    },
+    {
+      "path": "project.estimated_contract_value.value",
+      "expect": null,
+      "page": 18,
+      "trap": true,
+      "note": "the RFP states no estimate (p.332/355 are blank formats)"
+    },
+    {
+      "path": "project.project_cost.value",
+      "expect": null,
+      "page": 355,
+      "trap": true,
+      "note": "p.355 'Estimated project cost' is a blank format"
+    },
+    {
+      "path": "dates.published",
+      "expect": "2025-06-04",
+      "page": 3
+    },
+    {
+      "path": "dates.clarification_end",
+      "expect": "2025-06-18",
+      "page": 3
+    },
+    {
+      "path": "dates.pre_bid.date",
+      "expect": "2025-06-19",
+      "page": 3
+    },
+    {
+      "path": "dates.submission_end",
+      "expect": "2025-07-03",
+      "page": 3
+    },
+    {
+      "path": "dates.technical_opening",
+      "expect": "2025-07-04",
+      "page": 3
+    },
+    {
+      "path": "dates.financial_opening",
+      "expect": null,
+      "page": 3,
+      "trap": true,
+      "note": "'to be intimated later'"
+    },
+    {
+      "path": "dates.validity_days",
+      "expect": 120,
+      "page": 3
+    },
+    {
+      "path": "securities.document_fee.value",
+      "expect": 5000,
+      "page": 10
+    },
+    {
+      "path": "securities.document_fee.value_with_tax",
+      "expect": 5900,
+      "page": 10
+    },
+    {
+      "path": "securities.bid_security.status",
+      "expect": "required",
+      "page": 10
+    },
+    {
+      "path": "securities.bid_security.amount",
+      "expect": 200000,
+      "page": 10
+    },
+    {
+      "path": "securities.performance_security.status",
+      "expect": "required",
+      "page": 25
+    },
+    {
+      "path": "securities.performance_security.percent",
+      "expect": 10,
+      "page": 25
+    },
+    {
+      "path": "securities.additional_performance_security.status",
+      "expect": "conditional",
+      "page": 27,
+      "note": "BG for 30% of the differential, only if the winning bid is below 85% of the average"
+    },
+    {
+      "path": "securities.additional_performance_security.percent",
+      "expect": 30,
+      "page": 27
+    },
+    {
+      "path": "eligibility.jv.lead_min_criteria_pct",
+      "expect": 75,
+      "page": 40
+    },
+    {
+      "path": "eligibility.jv.partner_min_criteria_pct",
+      "expect": 50,
+      "page": 40
+    },
+    {
+      "path": "qualification.financial[kind=turnover].value",
+      "expect": 50000000,
+      "page": 40,
+      "note": "Rs 5.00 crore"
+    },
+    {
+      "path": "qualification.experience[0].lookback_years",
+      "expect": 7,
+      "page": 40
+    },
+    {
+      "path": "evaluation.weights.technical_pct",
+      "expect": 80,
+      "page": 51
+    },
+    {
+      "path": "evaluation.weights.financial_pct",
+      "expect": 20,
+      "page": 51
+    },
+    {
+      "path": "evaluation.min_technical_score",
+      "expect": 80,
+      "page": 25
+    },
+    {
+      "path": "evaluation.criteria[name~experience].max_points",
+      "expect": 50,
+      "page": 41
+    },
+    {
+      "path": "evaluation.criteria[name~Material].max_points",
+      "expect": 10,
+      "page": 41
+    },
+    {
+      "path": "evaluation.criteria[name~key personnel].max_points",
+      "expect": 40,
+      "page": 41
+    },
+    {
+      "path": "evaluation.criteria[name~experience].sub_criteria#len",
+      "min": 3,
+      "page": 42,
+      "note": "the firm-experience criterion (50 marks) is broken into several scored items"
+    },
+    {
+      "path": "key_personnel.key_person_months_total",
+      "expect": 90,
+      "page": 154
+    },
+    {
+      "path": "key_personnel.roles[role~Team Leader].person_months",
+      "expect": 12,
+      "page": 154
+    },
+    {
+      "path": "key_personnel.roles[role~Team Leader].min_experience_years",
+      "expect": 12,
+      "page": 158,
+      "note": "Enclosure-II: total minimum 12 years"
+    },
+    {
+      "path": "key_personnel.roles[role~Land Acquisition].min_experience_years",
+      "expect": 15,
+      "page": 161
+    },
+    {
+      "path": "contract.payment_stages#len",
+      "expect": 15,
+      "page": 266
+    },
+    {
+      "path": "contract.payment_stages[0].percent",
+      "expect": 10,
+      "page": 266
+    },
+    {
+      "path": "contract.delay_damages[kind=penalty].max_pct",
+      "expect": 5,
+      "page": 271,
+      "note": "0.05% of contract price per day, max 5%"
+    }
+  ]
+}

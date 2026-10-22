@@ -1,18 +1,23 @@
+import hashlib
+import json
 import logging
+from collections.abc import Callable
+from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
-import hashlib
-
 from app.core.config import get_settings
 from app.core.exceptions import (
+    DuplicateRFPError,
+    ExtractionNotReadyError,
+    ExtractionRunningError,
     InvalidFileError,
     RFPNotFoundError,
     RFPNotReadyError,
-    DuplicateRFPError,
 )
 from app.repositories.base import RFPRepository
-from app.schemas.rfp import RFPRecord, RFPStatus
+from app.schemas.extraction import TenderExtraction
+from app.schemas.rfp import ExtractionStatus, RFPRecord, RFPStatus
 from app.services.ingestion_service import IngestionService
 from app.services.qdrant_service import QdrantService
 
@@ -31,11 +36,16 @@ class RFPService:
         repository: RFPRepository,
         ingestion_service: IngestionService,
         qdrant_service: QdrantService,
+        extraction_service_factory: Callable[[], object] | None = None,
     ):
         self.settings = get_settings()
         self.repository = repository
         self.ingestion_service = ingestion_service
         self.qdrant_service = qdrant_service
+
+        # A factory, not an instance: building the extractor needs the Gemini key,
+        # and the app must still start (and accept uploads) without it.
+        self._extraction_service_factory = extraction_service_factory
 
         self.settings.upload_dir.mkdir(parents=True, exist_ok=True)
 
@@ -138,14 +148,142 @@ class RFPService:
 
         return self.repository.update(rfp_id, status=RFPStatus.PROCESSING, error=None)
 
+    # ---------- structured extraction ----------
+
+    def request_extraction(self, rfp_id: str, force: bool = False) -> RFPRecord:
+        """Decide quickly (inside the HTTP request) whether an extraction run is needed.
+
+        Returns the record. If its extraction_status is RUNNING the caller must schedule
+        run_extraction() in the background; DONE means the cached result is still valid.
+        """
+        record = self.get(rfp_id)
+
+        if record.extraction_status == ExtractionStatus.RUNNING:
+            raise ExtractionRunningError(
+                f"Extraction for RFP {rfp_id} is already running."
+            )
+
+        path = Path(record.stored_path)
+        if not path.exists():
+            raise InvalidFileError("Original file is missing, cannot extract.")
+
+        if not force and self._cache_is_valid(record, path):
+            return record
+
+        return self.repository.update(
+            rfp_id, extraction_status=ExtractionStatus.RUNNING, extraction_error=None
+        )
+
+    def run_extraction(self, rfp_id: str) -> None:
+        """One Gemini call for the whole RFP (run in background)."""
+        record = self.get(rfp_id)
+        path = Path(record.stored_path)
+
+        try:
+            extractor = self._extractor()
+            result = extractor.extract(path)
+            key = self._extraction_key(record, extractor.fingerprint(path))
+
+            self._write_extraction(rfp_id, result.extraction)
+            self.repository.update(
+                rfp_id,
+                extraction_status=ExtractionStatus.DONE,
+                extraction_error=None,
+                extraction_key=key,
+                extraction_needs_review=result.extraction.meta.needs_review,
+                extraction_prompt_tokens=result.usage.prompt_tokens,
+                extraction_output_tokens=result.usage.output_tokens
+                + result.usage.thinking_tokens,
+                extraction_seconds=round(result.seconds, 1),
+                extracted_at=datetime.now(timezone.utc),
+            )
+            logger.info(
+                "RFP %s extracted: %d in / %d out tokens, %.0fs",
+                rfp_id,
+                result.usage.prompt_tokens,
+                result.usage.output_tokens,
+                result.seconds,
+            )
+
+        except Exception as e:
+            logger.exception("Extraction failed for RFP %s", rfp_id)
+            self.repository.update(
+                rfp_id,
+                extraction_status=ExtractionStatus.FAILED,
+                extraction_error=str(e),
+            )
+
+    def get_extraction(self, rfp_id: str) -> TenderExtraction:
+        record = self.get(rfp_id)
+
+        if record.extraction_status != ExtractionStatus.DONE:
+            detail = f"Extraction for RFP {rfp_id} is {record.extraction_status.value}."
+            if record.extraction_error:
+                detail += f" {record.extraction_error}"
+            raise ExtractionNotReadyError(detail)
+
+        path = self._extraction_file(rfp_id)
+        if not path.exists():
+            raise ExtractionNotReadyError(
+                "Extraction file is missing. Run extract again."
+            )
+
+        return TenderExtraction.model_validate_json(path.read_text(encoding="utf-8"))
+
+    def _extractor(self):
+        if self._extraction_service_factory is None:
+            raise InvalidFileError("Extraction is not configured.")
+        return self._extraction_service_factory()
+
+    def _extraction_file(self, rfp_id: str) -> Path:
+        return self.settings.data_dir / "rfp_extractions" / f"{rfp_id}.json"
+
+    @staticmethod
+    def _extraction_key(record: RFPRecord, fingerprint: str) -> str:
+        return hashlib.sha256(
+            f"{record.content_hash}|{fingerprint}".encode()
+        ).hexdigest()[:16]
+
+    def _cache_is_valid(self, record: RFPRecord, path: Path) -> bool:
+        """Same file, same schema, model, prompt and mode as the stored result -> no new LLM call."""
+        if record.extraction_status != ExtractionStatus.DONE:
+            return False
+        if not self._extraction_file(record.rfp_id).exists():
+            return False
+
+        key = self._extraction_key(record, self._extractor().fingerprint(path))
+        return record.extraction_key == key
+
+    def _write_extraction(self, rfp_id: str, extraction: TenderExtraction) -> None:
+        target = self._extraction_file(rfp_id)
+        target.parent.mkdir(parents=True, exist_ok=True)
+
+        tmp_path = target.with_suffix(".tmp")
+        tmp_path.write_text(
+            json.dumps(
+                extraction.model_dump(mode="json"), indent=2, ensure_ascii=False
+            ),
+            encoding="utf-8",
+        )
+        tmp_path.replace(target)
+
+    # ---------- startup recovery ----------
+
     def recover_interrupted(self) -> None:
-        """Mark the tasks that were stuck in "processing" as failed when the server restarts."""
+        """Mark the tasks that were stuck in "processing"/"running" as failed when the server restarts."""
         for record in self.repository.list_all():
             if record.status == RFPStatus.PROCESSING:
                 self.repository.update(
                     record.rfp_id,
                     status=RFPStatus.FAILED,
                     error="Server restarted during processing. Use re-ingest.",
+                )
+
+            if record.extraction_status == ExtractionStatus.RUNNING:
+                self.repository.update(
+                    record.rfp_id,
+                    extraction_status=ExtractionStatus.FAILED,
+                    extraction_error="Server restarted during extraction. Run extract again.",
                 )
 
     # ---------- delete ----------
@@ -155,6 +293,7 @@ class RFPService:
 
         self.qdrant_service.delete_by_rfp(rfp_id)
         Path(record.stored_path).unlink(missing_ok=True)
+        self._extraction_file(rfp_id).unlink(missing_ok=True)
         self.repository.delete(rfp_id)
 
     def resolve_rfp_ids(self, rfp_ids: list[str] | None) -> list[str]:

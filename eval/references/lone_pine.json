@@ -1,6 +1,6 @@
 {
   "name": "lone_pine",
-  "pdf": "uploads/FINAL RFP Lone Pine Sidewalk ATP Project.pdf",
+  "pdf": "uploads/FINAL_RFP_Lone_Pine_Sidewalk_ATP_Project.pdf",
   "about": "Inyo County (California) A&E consulting RFP: USD, cost-plus-fixed-fee, rated 0-5 x weight, pass/fail gates, no JV/turnover/security. Page numbers = printed = PDF pages.",
   "checks": [
     {
@@ -20,8 +20,9 @@
     },
     {
       "path": "identity.authority_name",
-      "contains": "Inyo County",
-      "page": 1
+      "contains": "Inyo",
+      "page": 1,
+      "note": "'County of Inyo' and 'Inyo County' are both fine"
     },
     {
       "path": "identity.title",
@@ -159,44 +160,52 @@
       "page": 14
     },
     {
-      "path": "evaluation.criteria[name~Qualifications].max_points",
+      "path": "evaluation.criteria[name~Qualifications].weight",
       "expect": 20,
-      "page": 15
+      "page": 15,
+      "note": "the RFP's table column is literally 'Weight' (the heading also says '(N points)')"
     },
     {
-      "path": "evaluation.criteria[name~Organization].max_points",
+      "path": "evaluation.criteria[name~Organization].weight",
       "expect": 15,
-      "page": 15
+      "page": 15,
+      "note": "the RFP's table column is literally 'Weight' (the heading also says '(N points)')"
     },
     {
-      "path": "evaluation.criteria[name~Scope of Services].max_points",
+      "path": "evaluation.criteria[name~Scope of Services].weight",
       "expect": 20,
-      "page": 15
+      "page": 15,
+      "note": "the RFP's table column is literally 'Weight' (the heading also says '(N points)')"
     },
     {
-      "path": "evaluation.criteria[name~Schedule of Work].max_points",
+      "path": "evaluation.criteria[name~Schedule of Work].weight",
       "expect": 10,
-      "page": 15
+      "page": 15,
+      "note": "the RFP's table column is literally 'Weight' (the heading also says '(N points)')"
     },
     {
-      "path": "evaluation.criteria[name~Local Presence].max_points",
+      "path": "evaluation.criteria[name~Local Presence].weight",
       "expect": 5,
-      "page": 15
+      "page": 15,
+      "note": "the RFP's table column is literally 'Weight' (the heading also says '(N points)')"
     },
     {
-      "path": "evaluation.criteria[name~References].max_points",
+      "path": "evaluation.criteria[name~References].weight",
       "expect": 10,
-      "page": 15
+      "page": 15,
+      "note": "the RFP's table column is literally 'Weight' (the heading also says '(N points)')"
     },
     {
-      "path": "evaluation.criteria[name~Presentation].max_points",
+      "path": "evaluation.criteria[name~Presentation].weight",
       "expect": 10,
-      "page": 15
+      "page": 15,
+      "note": "the RFP's table column is literally 'Weight' (the heading also says '(N points)')"
     },
     {
-      "path": "evaluation.criteria[name~Q&A].max_points",
+      "path": "evaluation.criteria[name~Q&A].weight",
       "expect": 10,
-      "page": 15
+      "page": 15,
+      "note": "the RFP's table column is literally 'Weight' (the heading also says '(N points)')"
     },
     {
       "path": "evaluation.criteria[name~Completeness].is_pass_fail",
