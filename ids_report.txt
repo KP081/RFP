@@ -1,0 +1,197 @@
+================================================================================
+17774728396239.pdf  (pages 1-40)
+  rfp         : 'P-45021/2/2017'  (p.18, label 'No.', line, strength 1, seen 6x)
+  nit         : -
+  tender_code : -
+
+  labels found but value refused (3), first 12:
+     p.5 'No.' -> '7729914680 2. Shri Pramod Kumar, Chief Manager Phone No.: 022 – 6131 9833 / 6131 9816 Email: Pramod.'
+     p.5 'No.' -> ': 022 – 6131 9833 / 6131 9816 Email: Pramod.B@bankofindia.bank.in Alternate Email: Security.Informat'
+     p.5 'No.' -> '9496327912 4. Shri Mayank Tandon, Chief Manager Ph. No - 022-6917 9311 5. Ms Aneesha C R, Manager Ph'
+================================================================================
+1_online_Final_RFP_for_website_KIP_SIP.pdf  (pages 1-40)
+  rfp         : 'OI-16016/03/2016-OIA-II'  (p.23, label 'Tender Reference No.', next_line, strength 2, seen 1x)
+  nit         : -
+  tender_code : -
+
+  labels found but value refused (20), first 12:
+     p.2 'NO.' -> 'Description'
+     p.2 'No.' -> 'Description /Formats'
+     p.12 'No.' -> 'Description'
+     p.14 'No.' -> 'Description'
+     p.17 'No.' -> '906, 9th Floor'
+     p.18 'tender. No' -> 'interest will be payable to'
+     p.21 'No.' -> 'and should be'
+     p.24 'no.' -> '2. All the prices mentioned in our proposal are in accordance with the terms as specified in'
+     p.25 'No.' -> '23'
+     p.26 'No.' -> 'Item'
+     p.26 'No.' -> ': website Email Address: Mobile No.'
+     p.26 'No.' -> ': Email Address:'
+================================================================================
+2026820142917259.pdf  (pages 1-40)
+  rfp         : 'GFGNL/GFG/e-file/263/2026/0070/Phase-III'  (p.1, label 'Tender No.', line, strength 2, seen 1x)
+  nit         : -
+  tender_code : -
+
+  labels found but value refused (78), first 12:
+     p.3 'No.' -> 'Clause No.'
+     p.3 'No.' -> 'Reference/Subject'
+     p.4 'No.' -> 'Clause No.'
+     p.4 'No.' -> 'Reference/Subject'
+     p.5 'No.' -> 'Clause No.'
+     p.5 'No.' -> 'Reference/Subject'
+     p.6 'No.' -> 'Clause No.'
+     p.6 'No.' -> 'Reference/Subject'
+     p.7 'No.' -> 'Clause No.'
+     p.7 'No.' -> 'Reference/Subject'
+     p.8 'No.' -> 'Clause No.'
+     p.8 'No.' -> 'Reference/Subject'
+================================================================================
+39fbeb59-6559-4cc5-b513-2f8fa805ea3c.pdf  (pages 1-40)
+  rfp         : '04/2015-16'  (p.16, label 'proposal reference number', next_line, strength 2, seen 3x)
+  nit         : -
+  tender_code : -
+
+  labels found but value refused (6), first 12:
+     p.16 'No.' -> 'May enclose Separate sheet along with annexure'
+     p.16 'No.' -> 'May enclose Separate sheet along with annexure'
+     p.17 'No.' -> 'of other support staff Team of Media official'
+     p.17 'No.' -> 'RFP_APPOINTMENT of PR agency_2015-16 Page 17'
+     p.20 'No.' -> 'Mobile No.'
+     p.22 'No.' -> 'and Fax No for serving notices to the Tenderer in connection with the tender.'
+================================================================================
+DraftChIIARFP.pdf  (pages 1-40)
+  rfp         : -
+  nit         : -
+  tender_code : -
+
+  labels found but value refused (10), first 12:
+     p.2 'File No' -> ':______________________'
+     p.2 'No.' -> 'Description'
+     p.3 'No.' -> 'Description'
+     p.19 'No.' -> '(b) Bought out items and customized by the OEM for the specific purpose and'
+     p.19 'No.' -> '/Identification No. as given by OEM/Third Party and directly utilised.'
+     p.19 'No.' -> 'as given by OEM/Third Party and directly utilised.'
+     p.19 'No.' -> '/Identification No. of items in addition to bidder assigned part'
+     p.19 'No.' -> 'of items in addition to bidder assigned part'
+     p.23 'reference number' -> 'specified.'
+     p.35 'No.' -> 'Eligible Offset Products /Services Being Offered'
+================================================================================
+FINAL RFP Lone Pine Sidewalk ATP Project.pdf  (pages 1-40)
+  rfp         : '146.1-Actual'  (p.27, label 'Contract No.', line, strength 2, seen 14x)
+  nit         : -
+  tender_code : -
+
+  labels found but value refused (5), first 12:
+     p.15 'No.' -> 'Written Evaluation Criteria'
+     p.15 'No.' -> 'Written Evaluation Criteria'
+     p.17 'No.' -> 'Evaluation Criteria'
+     p.29 'F. No' -> 'payment will be made prior to approval of any work, nor for any work performed'
+     p.29 'contract number' -> 'and project title. Final invoice must contain the final cost and all credits due County'
+================================================================================
+Public Relations and Marketing Services 2019.pdf  (pages 1-40)
+  rfp         : -
+  nit         : -
+  tender_code : -
+
+  labels found but value refused (1), first 12:
+     p.17 'NO.' -> '517, PUBLIC'
+================================================================================
+request-for-proposal-rpf-nlp.pdf  (pages 1-40)
+  rfp         : 'RFP/2020/04-GeM'  (p.1, label 'RFP No.', line, strength 3, seen 1x)
+  nit         : -
+  tender_code : -
+
+  labels found but value refused (12), first 12:
+     p.7 'No.' -> 'Document Reference(s) (Section & Page No.(s))'
+     p.7 'No.' -> '(s))'
+     p.8 'Reference No.' -> '\uf0b7 Bids of only those bidders shall be opened whose transferred amount has been credited'
+     p.13 'No.' -> 'Requirement'
+     p.15 'No.' -> 'Parameters'
+     p.21 'No.' -> 'Specification'
+     p.24 'No.' -> 'Service Level Description'
+     p.25 'No.' -> 'Service Level Description'
+     p.25 'No.' -> 'Payment Milestone Details'
+     p.30 'No.' -> 'Date'
+     p.32 'No.' -> 'Information'
+     p.35 'No.' -> 'Contact Email ID (Official email ID)'
+================================================================================
+RFP.pdf  (pages 1-40)
+  rfp         : -
+  nit         : -
+  tender_code : -
+
+  labels found but value refused (3), first 12:
+     p.11 'No.' -> 'Services/Infrastructure'
+     p.12 'No.' -> 'Services/Infrastructure'
+     p.13 'No.' -> 'Services/Infrastructure'
+================================================================================
+rfp_4_0.pdf  (pages 1-40)
+  rfp         : -
+  nit         : -
+  tender_code : -
+
+  labels found but value refused (42), first 12:
+     p.2 'No.' -> 'Table of Content'
+     p.4 'No.' -> ': 011-26768956'
+     p.12 'No.' -> 'Average Annual Turnover of Firm in last 3 Financial Years (from Consultancy Services)'
+     p.12 'No.' -> 'of key professionals on full time employment with the consultant (minimum for last one year)'
+     p.12 'no.' -> 'of DPR/AE/IE/CSC consultancy assignments to be awarded to one particular consultant including ongoin'
+     p.12 'no.' -> 'of DPR consultancy assignments to be awarded to one particular consultant including ongoing consulta'
+     p.12 'No.' -> '2'
+     p.12 'no.' -> 'of DPR consultancy assignments to be awarded in one financial year to one particular consultant incl'
+     p.13 'No.' -> 'Average Annual Turnover of Firm in last 3 Financial Years (from Consultancy Services)'
+     p.13 'No.' -> '3.'
+     p.13 'no.' -> 'of consultancy assignments mentioned in Sr. No. 2, 3 & 4 of the above'
+     p.13 'No.' -> '2, 3 & 4 of the above'
+================================================================================
+RFP_DPR.pdf  (pages 1-40)
+  rfp         : 'RFP/Bhopal-Kota/2025-26/efile-299153'  (p.10, label 'RFP Document No.', line, strength 3, seen 3x)
+  nit         : -
+  tender_code : -
+
+  labels found but value refused (4), first 12:
+     p.10 'No.' -> 'of Covers'
+     p.15 'No.' -> '1) issued by the Government of India (Ministry of Finance Department'
+     p.31 'RFP Document. No' -> 'additional technical details which have not been brought out in the Technical Proposal shall'
+     p.33 'Proposal. No' -> 'request on the account that the server clock was not showing the'
+================================================================================
+RFP_Gandhidham-Cluster-Final-2702.pdf  (pages 1-40)
+  rfp         : '03/2026'  (p.1, label 'RFP Ref. No.', line, strength 3, seen 1x)
+  nit         : -
+  tender_code : -
+
+  labels found but value refused (10), first 12:
+     p.1 'No.' -> '1, 3rd Floor, Dr. Jivraj Mehta Bhavan, Gandhinagar - 382010, Gujarat, India.'
+     p.5 'NO.' -> 'OF INSTRUCTORS .....................................................................................'
+     p.19 'No.' -> 'Particulars'
+     p.20 'No.' -> 'Particulars'
+     p.21 'No.' -> 'Particulars'
+     p.22 'No.' -> 'Particulars'
+     p.23 'No.' -> 'Particulars'
+     p.23 'no.' -> 'of employees 500 The Bidder shall independently meet the minimum manpower requirement specified abov'
+     p.23 'no.' -> 'of employees 250 Where the Bidder is an industry- led foundation, industry association, or an academ'
+     p.35 'No.' -> 'ITI Name (Hub/Spoke)'
+================================================================================
+RFP_Public-Health-Ethics-V3-005.pdf  (pages 1-40)
+  rfp         : '2024-_ _ _ _ _ _'  (p.8, label 'CONTRACT #', line, strength 2, seen 1x)
+  nit         : -
+  tender_code : -
+
+  labels found but value refused (3), first 12:
+     p.9 'No.' -> 'm'
+     p.13 'No.' -> 'DUNS No.:________________________'
+     p.13 'No.' -> ':________________________'
+================================================================================
+Tele MANAS IT Services RFP.pdf  (pages 1-40)
+  rfp         : 'IIITB/EHRC/2022/IT-01'  (p.10, label 'RFP Number', next_line, strength 3, seen 46x)
+  nit         : -
+  tender_code : -
+
+  labels found but value refused (6), first 12:
+     p.12 'No.' -> ': 080-28520014) Bank Account Number: 1238011010536 IFSC Code: PUNB0123820 MICR Code: 560024069 Swift'
+     p.22 'No.' -> '1 to 6, AND a total score of at least 65 will be considered eligible for the Commercial evaluation'
+     p.26 'RFP No' -> ': Software Development and Platform'
+     p.26 'RFP No' -> ': Software Development and Platform Support'
+     p.27 'RFP No' -> ': Software Development and Platform Support Services for National Tele-Mental'
+     p.35 'Bid. No' -> 'Bidder shall contact the Company on any matter'

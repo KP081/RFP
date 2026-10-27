@@ -41,7 +41,9 @@ PAGE_NUMBER_PATTERNS = {
     "bare number": re.compile(r"^\s*\d{1,4}\s*$"),
     "N of M": re.compile(r"^\s*\d+\s+of\s+\d+\s*$", re.I),
 }
-SIGNATURE = re.compile(r"digitally\s+signed|digital\s+signature|signature\s+valid", re.I)
+SIGNATURE = re.compile(
+    r"digitally\s+signed|digital\s+signature|signature\s+valid", re.I
+)
 DOT_LEADER = re.compile(r"(\.{5,}|(\. ){5,}|-{5,}|_{5,})\s*\d{1,4}\s*$")
 REFERENCE_LINE = re.compile(
     r"\b(rfp|nit|tender|bid|enquiry|reference|ref)\b.{0,30}\b(no\.?|number|id|code)\b",
@@ -115,7 +117,11 @@ def scan(pages) -> dict:
             if DOT_LEADER.search(line):
                 leaders.append((page.page_number, line[:100]))
 
-            if page.page_number <= 40 and REFERENCE_LINE.search(line) and len(line) < 200:
+            if (
+                page.page_number <= 40
+                and REFERENCE_LINE.search(line)
+                and len(line) < 200
+            ):
                 following = lines[index + 1] if index + 1 < len(lines) else ""
                 references.append((page.page_number, line[:150], following[:80]))
 
@@ -141,19 +147,23 @@ def report(name: str, pages, found: dict, samples: int) -> None:
     if not found["page_numbers"]:
         print("     none")
     for kind, count in found["page_numbers"].most_common():
-        print(f"     {kind:<12} {count:>5}  e.g. {found['page_number_examples'][kind]!r}")
+        print(
+            f"     {kind:<12} {count:>5}  e.g. {found['page_number_examples'][kind]!r}"
+        )
 
     print(f"\n  3. DIGITAL SIGNATURE LINES: {len(found['signatures'])}")
     for page, line, following in found["signatures"][:samples]:
         print(f"     p.{page}: {line!r}  ->  {following!r}")
 
     pages_with_leaders = sorted({page for page, _ in found["leaders"]})
-    print(f"\n  4. TOC DOT-LEADER LINES: {len(found['leaders'])} on {len(pages_with_leaders)} pages {pages_with_leaders[:12]}")
-    for page, line in found["leaders"][:min(samples, 3)]:
+    print(
+        f"\n  4. TOC DOT-LEADER LINES: {len(found['leaders'])} on {len(pages_with_leaders)} pages {pages_with_leaders[:12]}"
+    )
+    for page, line in found["leaders"][: min(samples, 3)]:
         print(f"     p.{page}: {line!r}")
 
     print(f"\n  5. REFERENCE-NUMBER LINES (first 40 pages): {len(found['references'])}")
-    for page, line, following in found["references"][:samples + 4]:
+    for page, line, following in found["references"][: samples + 4]:
         print(f"     p.{page}: {line!r}  ->  {following!r}")
 
 
@@ -162,7 +172,9 @@ def main() -> None:
     parser.add_argument("pdfs", nargs="*", type=Path)
     parser.add_argument("--dir", type=Path, default=Path("data/RFPs-Sample"))
     parser.add_argument("--samples", type=int, default=6)
-    parser.add_argument("--plain", action="store_true", help="plain pypdf text (faster)")
+    parser.add_argument(
+        "--plain", action="store_true", help="plain pypdf text (faster)"
+    )
     parser.add_argument(
         "--out",
         type=Path,
@@ -186,7 +198,10 @@ def main() -> None:
         # Windows: '>' redirects with the cp1252 code page and crashes on characters such as
         # U+2010. Writing the file ourselves as UTF-8 avoids that.
         args.out.parent.mkdir(parents=True, exist_ok=True)
-        with args.out.open("w", encoding="utf-8") as handle, contextlib.redirect_stdout(handle):
+        with (
+            args.out.open("w", encoding="utf-8") as handle,
+            contextlib.redirect_stdout(handle),
+        ):
             run()
         print(f"saved: {args.out}")
     else:
