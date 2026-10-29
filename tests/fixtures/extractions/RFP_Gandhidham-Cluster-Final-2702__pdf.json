@@ -1,0 +1,512 @@
+{
+  "document_kind": "tender_document",
+  "family": "ppp_partnership",
+  "identity": {
+    "tender_code": null,
+    "rfp_number": "03/2026",
+    "nit_number": null,
+    "title": "Selection of an Anchor Industry Partner (AIP) for Upgradation of ITI Clusters Gandhidham under PM-SETU in the State of Gujarat",
+    "title_full": "Request for Proposal (RFP) For Selection of an Anchor Industry Partner (AIP) for Upgradation of ITI Clusters Gandhidham [ITI Gandhidham, ITI Mandvi(Kutchh), ITI Anjar, ITI Bhuj, ITI Mundra] under the PM-SETU in the State of Gujarat",
+    "authority_name": "Directorate of Employment and Training, Gandhinagar Gujarat",
+    "client": null,
+    "funding_agency": null,
+    "tender_type": null,
+    "currency": "INR",
+    "assignment_type": "other",
+    "assignment_type_text": "Upgradation, operation, and management of a cluster of Industrial Training Institutes",
+    "sector": "Skill Development",
+    "selection_method": "qcbs",
+    "selection_method_basis": "stated",
+    "contract_form": null,
+    "no_of_covers": 2,
+    "eportal_url": "nProcure",
+    "contact": {
+      "name": "Mr. Nitin Sangwan IAS",
+      "designation": "Director, Employment and Training",
+      "email": "director-det@gujarat.gov.in",
+      "phone": "9726590311",
+      "address": "Block No. 1, 3rd Floor, Dr. Jivraj Mehta Bhavan, Gandhinagar - 382010, Gujarat, India."
+    }
+  },
+  "project": {
+    "description": "Upgradation, operation, and management of ITI Clusters Gandhidham [ITI Gandhidham, ITI Mandvi(Kutchh), ITI Anjar, ITI Bhuj, ITI Mundra] under a Hub-and-Spoke model through a Special Purpose Vehicle (SPV) to be formed with the Government.",
+    "states": [
+      "Gujarat"
+    ],
+    "routes": [],
+    "length_km": null,
+    "lanes": null,
+    "project_mode": null,
+    "estimated_contract_value": {
+      "value": null,
+      "value_with_tax": null,
+      "raw_text": null
+    },
+    "project_cost": {
+      "value": 2410000000.0,
+      "value_with_tax": null,
+      "raw_text": "241 cr"
+    },
+    "packages": []
+  },
+  "dates": {
+    "published": null,
+    "download_start": null,
+    "download_end": null,
+    "clarification_end": null,
+    "submission_start": null,
+    "submission_end": null,
+    "hard_copy_deadline": null,
+    "technical_opening": null,
+    "financial_opening": null,
+    "validity_days": 180,
+    "validity_basis": "calendar days from the last date of submission of proposal",
+    "pre_bid": {
+      "required": true,
+      "date": null,
+      "place": null
+    }
+  },
+  "securities": {
+    "document_fee": {
+      "value": null,
+      "value_with_tax": null,
+      "raw_text": null
+    },
+    "bid_security": {
+      "status": "required",
+      "amount": 72300000.0,
+      "percent": 3.0,
+      "percent_basis": "Estimated Project Cost",
+      "is_minimum": null,
+      "bidder_quoted": null,
+      "declaration_permitted": null,
+      "exemptions": [],
+      "forms_accepted": [
+        "Bank Guarantee (BG)",
+        "Fixed Deposit Receipt (FDR)"
+      ]
+    },
+    "performance_security": {
+      "status": "required",
+      "amount": null,
+      "percent": 5.0,
+      "percent_basis": "Project Cost",
+      "is_minimum": null,
+      "bidder_quoted": null,
+      "declaration_permitted": null,
+      "exemptions": [],
+      "forms_accepted": [
+        "Bank Guarantee",
+        "FDR"
+      ]
+    },
+    "additional_performance_security": {
+      "status": "not_stated",
+      "amount": null,
+      "percent": null,
+      "percent_basis": null,
+      "is_minimum": null,
+      "bidder_quoted": null,
+      "declaration_permitted": null,
+      "exemptions": [],
+      "forms_accepted": []
+    }
+  },
+  "eligibility": {
+    "entity_types": [
+      "Registered private or public limited company engaged in manufacturing or services, including PSUs",
+      "Industry partners (credible companies or manufacturers with established operations in India), including Public Sector Undertakings",
+      "Industry associations or consortia",
+      "Industry-led foundations (CSR/philanthropy arms of corporates)",
+      "Academic institutions promoted/operated by industry (e.g., corporate universities, sectoral skilling institutions)"
+    ],
+    "registrations": [
+      "PAN",
+      "GSTIN"
+    ],
+    "certifications": [],
+    "min_years_in_business": 5,
+    "exclusions": [
+      "blacklisted",
+      "debarred"
+    ],
+    "restricted_country_rule": null,
+    "startup_relaxation": null,
+    "participation_limit": "A Bidder, including any member of a Consortium, shall submit only one proposal either individually or as a member of a Consortium.",
+    "jv": {
+      "allowed": true,
+      "max_members": 5,
+      "lead_min_share_pct": null,
+      "member_min_share_pct": null,
+      "lead_min_criteria_pct": null,
+      "partner_min_criteria_pct": null,
+      "partner_restriction": null,
+      "joint_and_several_liability": true,
+      "mou_required": true
+    },
+    "subcontracting": {
+      "allowed": null,
+      "max_pct": null,
+      "scope": null,
+      "prior_approval_required": null
+    },
+    "associate_rules": null
+  },
+  "qualification": {
+    "financial": [
+      {
+        "kind": "turnover",
+        "label": "average annual turnover",
+        "value": 5000000000.0,
+        "basis": "absolute_amount",
+        "period_years": 3,
+        "aggregation": "average",
+        "counted_from": null,
+        "raw_text": "INR 500 Crore"
+      },
+      {
+        "kind": "net_worth",
+        "label": "net worth",
+        "value": null,
+        "basis": "absolute_amount",
+        "period_years": 3,
+        "aggregation": "each_year",
+        "counted_from": null,
+        "raw_text": "positive net worth for the last three (3) consecutive financial years"
+      },
+      {
+        "kind": "staff_strength",
+        "label": "employees on payroll",
+        "value": 500.0,
+        "basis": "absolute_amount",
+        "period_years": null,
+        "aggregation": null,
+        "counted_from": null,
+        "raw_text": "500 employees (250 for Industry-led Foundations / Academic Institutions / Industry Associations)"
+      }
+    ],
+    "experience": [],
+    "adjustment_factors": [],
+    "bid_capacity": {
+      "required": null,
+      "formula": null,
+      "description": null
+    }
+  },
+  "evaluation": {
+    "weights": {
+      "technical_pct": 80.0,
+      "financial_pct": 20.0,
+      "other": []
+    },
+    "formula_text": "Sn = (Xt * 0.50) + (Yt * 0.30) + (Zt * 0.20)",
+    "min_technical_score": 50.0,
+    "rating_scale_max": null,
+    "total_points": 100.0,
+    "bid_parameter": "Industry Share Percentage (F)",
+    "stages": [
+      "Part A: Eligibility & Qualification",
+      "Part B: Technical Scoring",
+      "Financial Evaluation"
+    ],
+    "criteria": [
+      {
+        "name": "A. Operational Plan & Strategy",
+        "max_points": 10.0,
+        "weight": null,
+        "is_pass_fail": null,
+        "sub_criteria": [
+          {
+            "name": "Inclusivity (SC/ST & other groups)",
+            "max_points": 5.0,
+            "bands": []
+          },
+          {
+            "name": "Female Enrolment",
+            "max_points": 5.0,
+            "bands": []
+          }
+        ]
+      },
+      {
+        "name": "B. Curriculum Strategy — Diversity & Innovation",
+        "max_points": 15.0,
+        "weight": null,
+        "is_pass_fail": null,
+        "sub_criteria": [
+          {
+            "name": "Course Redesign",
+            "max_points": 5.0,
+            "bands": []
+          },
+          {
+            "name": "New-Age Areas",
+            "max_points": 5.0,
+            "bands": []
+          },
+          {
+            "name": "Non-ITI Courses",
+            "max_points": 3.0,
+            "bands": []
+          },
+          {
+            "name": "Pedagogical Innovation",
+            "max_points": 2.0,
+            "bands": []
+          }
+        ]
+      },
+      {
+        "name": "C. Infrastructure & Facility Management",
+        "max_points": 10.0,
+        "weight": null,
+        "is_pass_fail": null,
+        "sub_criteria": [
+          {
+            "name": "Capex & Upgradation Plan",
+            "max_points": 5.0,
+            "bands": []
+          },
+          {
+            "name": "Equipment Fungibility",
+            "max_points": 5.0,
+            "bands": []
+          }
+        ]
+      },
+      {
+        "name": "D. Industry Engagement & In-house Absorption",
+        "max_points": 10.0,
+        "weight": null,
+        "is_pass_fail": null,
+        "sub_criteria": [
+          {
+            "name": "Partnership Strategy",
+            "max_points": 5.0,
+            "bands": []
+          },
+          {
+            "name": "In-house Absorption",
+            "max_points": 5.0,
+            "bands": []
+          }
+        ]
+      },
+      {
+        "name": "E. HR Plan",
+        "max_points": 15.0,
+        "weight": null,
+        "is_pass_fail": null,
+        "sub_criteria": [
+          {
+            "name": "Proposed SPV CEO & Managers",
+            "max_points": 5.0,
+            "bands": []
+          },
+          {
+            "name": "Trainer Capacity Building",
+            "max_points": 3.0,
+            "bands": []
+          },
+          {
+            "name": "Master Trainers & Experts",
+            "max_points": 2.0,
+            "bands": []
+          },
+          {
+            "name": "Vacancy Management",
+            "max_points": 5.0,
+            "bands": []
+          }
+        ]
+      },
+      {
+        "name": "F. Employment Outcomes",
+        "max_points": 15.0,
+        "weight": null,
+        "is_pass_fail": null,
+        "sub_criteria": [
+          {
+            "name": "Placement Strategy",
+            "max_points": 7.0,
+            "bands": []
+          },
+          {
+            "name": "Apprenticeships",
+            "max_points": 3.0,
+            "bands": []
+          },
+          {
+            "name": "Salary Growth",
+            "max_points": 2.0,
+            "bands": []
+          },
+          {
+            "name": "Overseas Mobility",
+            "max_points": 3.0,
+            "bands": []
+          }
+        ]
+      },
+      {
+        "name": "G. Sustainability Plan",
+        "max_points": 5.0,
+        "weight": null,
+        "is_pass_fail": null,
+        "sub_criteria": [
+          {
+            "name": "Revenue Generation Model",
+            "max_points": 5.0,
+            "bands": []
+          }
+        ]
+      },
+      {
+        "name": "H. Strategic Investment Plan",
+        "max_points": 20.0,
+        "weight": null,
+        "is_pass_fail": null,
+        "sub_criteria": [
+          {
+            "name": "Vision, Mission & Strategic Objectives",
+            "max_points": 2.0,
+            "bands": []
+          },
+          {
+            "name": "New & Revised Courses (Demand / Gaps)",
+            "max_points": 2.0,
+            "bands": []
+          },
+          {
+            "name": "Industry & Employer Linkages",
+            "max_points": 2.0,
+            "bands": []
+          },
+          {
+            "name": "Innovations in Training & Pedagogy",
+            "max_points": 2.0,
+            "bands": []
+          },
+          {
+            "name": "Capacity Building Plan for ITI Leadership & Instructors",
+            "max_points": 2.0,
+            "bands": []
+          },
+          {
+            "name": "Infrastructure Modernization & Development",
+            "max_points": 2.0,
+            "bands": []
+          },
+          {
+            "name": "Gender Equity & Social Inclusion Strategy",
+            "max_points": 1.0,
+            "bands": []
+          },
+          {
+            "name": "Monitoring, Evaluation & Performance Measurement",
+            "max_points": 1.0,
+            "bands": []
+          },
+          {
+            "name": "Governance Structure & Management Framework",
+            "max_points": 2.0,
+            "bands": []
+          },
+          {
+            "name": "Financial Sustainability & Scalable",
+            "max_points": 2.0,
+            "bands": []
+          },
+          {
+            "name": "Impact Stakeholder Consultation & Engagement",
+            "max_points": 1.0,
+            "bands": []
+          },
+          {
+            "name": "Risk Identification, Assessment & Mitigation",
+            "max_points": 1.0,
+            "bands": []
+          }
+        ]
+      }
+    ],
+    "per_expert_rule": null
+  },
+  "key_personnel": {
+    "summary": null,
+    "roles": [
+      {
+        "role": "SPV CEO",
+        "category": "key",
+        "count": null,
+        "person_months": null,
+        "site_pct": null,
+        "office_pct": null,
+        "qualification": null,
+        "certifications": [],
+        "location": null,
+        "responsibilities": null,
+        "min_experience_years": null,
+        "technical_weight_points": null,
+        "individual_max_points": null,
+        "min_score_pct": null,
+        "rate_per_month": null,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Key Managers",
+        "category": "key",
+        "count": null,
+        "person_months": null,
+        "site_pct": null,
+        "office_pct": null,
+        "qualification": null,
+        "certifications": [],
+        "location": null,
+        "responsibilities": null,
+        "min_experience_years": null,
+        "technical_weight_points": null,
+        "individual_max_points": null,
+        "min_score_pct": null,
+        "rate_per_month": null,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      }
+    ],
+    "key_person_months_total": null,
+    "all_staff_person_months_total": null,
+    "rules": null
+  },
+  "contract": {
+    "duration_months": null,
+    "commencement": null,
+    "price_escalation": null,
+    "phases": [],
+    "payment_stages": [],
+    "delay_damages": []
+  },
+  "additional_conditions": [
+    {
+      "category": "SPV Formation",
+      "text": "A Section 8 Company (SPV) shall be incorporated prior to execution of the License Agreement, jointly owned by the Anchor Industry Partner (51%), Central Government (24.5%), and State Government (24.5%)."
+    },
+    {
+      "category": "Jurisdiction",
+      "text": "Courts at the Authority's headquarters shall have exclusive jurisdiction."
+    }
+  ],
+  "meta": {
+    "schema_version": "1.2",
+    "confidence": null,
+    "needs_review": false,
+    "review_flags": [],
+    "pages_used": {},
+    "model": "gemini-3.5-flash-lite",
+    "prompt_hash": "97e1ed24f92c",
+    "extracted_at": "2026-10-19T06:09:45.448299+00:00"
+  }
+}

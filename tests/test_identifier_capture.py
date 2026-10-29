@@ -271,3 +271,55 @@ def test_reconcile_flags_an_ungrounded_value_when_nothing_is_labelled():
 def test_helpers():
     assert normalise("RFP/ Bhopal- Kota/2025- 26") == "RFP/Bhopal-Kota/2025-26"
     assert squash("Bhopal- Kota") == squash("Bhopal-\nKota") == "bhopal-kota"
+
+
+def test_letter_header_number_before_dated():
+    page = (
+        "Letter of Invitation (LOI)\n"
+        "NHIDCL/DPR/Siliguri-Guwahati/2025-26/ Dated :\n"
+        "Dear Sir,\n"
+        "Sub: Consultancy Services for Preparation of Detailed Project Report"
+    )
+    assert best(page) == "NHIDCL/DPR/Siliguri-Guwahati/2025-26"
+
+
+def test_letter_header_number_with_dated_on_the_next_line():
+    page = "NHIDCL/DPR/Siliguri-Guwahati/2025-26\nDated: 04.06.2025\nDear Sir,"
+    assert best(page) == "NHIDCL/DPR/Siliguri-Guwahati/2025-26"
+
+
+def test_a_labelled_line_is_not_read_twice_by_the_dated_rule():
+    result = capture(
+        "No. NHIDCL/Mizoram/DPR/Lunglei bypass/2022-23      Dated: 15.05.2023"
+    )
+    assert [c.value for c in result.candidates] == [
+        "NHIDCL/Mizoram/DPR/Lunglei bypass/2022-23"
+    ]
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Ref 12-3 Dated: 04.06.2025",
+        "Sub: Extension of date Dated: 04.06.2025",
+        "12/03/2025 Dated: 04.06.2025",
+        "Dated: 04.06.2025",
+        "CONTRACT # 2024-_ _ _ _ _ _",
+        "RFP No.: 2024/XXXX",
+        "Contract No. 146.1-Actual",
+    ],
+)
+def test_more_things_that_are_not_a_number(text):
+    assert capture(text).candidates == []
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "to Make in India), Order 2017 (PPP-MII Order), Order No. P-45021/2/2017-BEII",
+        "issued vide letter No. P-45021/2/2017(BE-II) dated 04.06.2020 & vide letter No. P-",
+        "Letter of Invitation No. X/1/2/2025",
+    ],
+)
+def test_a_bare_no_inside_a_sentence_is_a_citation(text):
+    assert capture(text).candidates == []

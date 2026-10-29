@@ -1,0 +1,596 @@
+{
+  "document_kind": "tender_document",
+  "family": "consultancy_rfp",
+  "identity": {
+    "tender_code": null,
+    "rfp_number": "NHIDCL/DPR/Siliguri-Guwahati/2025-26/",
+    "nit_number": null,
+    "title": "Consultancy Services for Preparation of Detailed Project Report for Construction of 4-Lane Access Controlled High Speed Corridor starting from Siliguri to Guwahati and connecting Jorabat in the States of West Bengal and Assam",
+    "title_full": "Consultancy Services for Preparation of Detailed Project Report for Construction of 4-Lane Access Controlled High Speed Corridor starting from Siliguri to Guwahati and connecting Jorabat in the States of West Bengal and Assam",
+    "authority_name": "National Highways Infrastructure Development Corporation Limited",
+    "client": "Ministry of Road Transport & Highways, Govt. of India",
+    "funding_agency": null,
+    "tender_type": null,
+    "currency": "INR",
+    "assignment_type": "dpr",
+    "assignment_type_text": "Consultancy Services for Preparation of Detailed Project Report",
+    "sector": "Roads & Highways",
+    "selection_method": "qcbs",
+    "selection_method_basis": "stated",
+    "contract_form": "lump_sum",
+    "no_of_covers": 2,
+    "eportal_url": "https://eprocure.gov.in",
+    "contact": {
+      "name": "Ankush Mehta",
+      "designation": "General Manager (Technical)",
+      "email": "Sikkim_wb.hq@nhidcl.com",
+      "phone": "011-26768956",
+      "address": "1st Floor, Tower A, World Trade Centre, Nauroji Nagar, New Delhi- 110029"
+    }
+  },
+  "project": {
+    "description": "Preparation of Detailed Project Report for Construction of 4-Lane Access Controlled High Speed Corridor starting from Siliguri to Guwahati and connecting Jorabat in the States of West Bengal and Assam",
+    "states": [
+      "West Bengal",
+      "Assam"
+    ],
+    "routes": [
+      "Siliguri",
+      "Guwahati",
+      "Jorabat"
+    ],
+    "length_km": 400.0,
+    "lanes": "4-Lane",
+    "project_mode": null,
+    "estimated_contract_value": {
+      "value": null,
+      "value_with_tax": null,
+      "raw_text": null
+    },
+    "project_cost": {
+      "value": null,
+      "value_with_tax": null,
+      "raw_text": null
+    },
+    "packages": []
+  },
+  "dates": {
+    "published": "2025-06-04",
+    "download_start": "2025-06-04",
+    "download_end": null,
+    "clarification_end": "2025-06-18",
+    "submission_start": null,
+    "submission_end": "2025-07-03",
+    "hard_copy_deadline": "2025-07-03",
+    "technical_opening": "2025-07-04",
+    "financial_opening": null,
+    "validity_days": 120,
+    "validity_basis": "from bid due date",
+    "pre_bid": {
+      "required": true,
+      "date": "2025-06-19",
+      "place": "NHIDCL-HQ"
+    }
+  },
+  "securities": {
+    "document_fee": {
+      "value": 5000.0,
+      "value_with_tax": 5900.0,
+      "raw_text": "Rs.5,000 +18% GST (Rs. 5,900/-)"
+    },
+    "bid_security": {
+      "status": "required",
+      "amount": 200000.0,
+      "percent": null,
+      "percent_basis": null,
+      "is_minimum": null,
+      "bidder_quoted": false,
+      "declaration_permitted": false,
+      "condition": null,
+      "exemptions": [],
+      "forms_accepted": [
+        "e- Bank Guarantee",
+        "Demand Draft",
+        "online facility"
+      ]
+    },
+    "performance_security": {
+      "status": "required",
+      "amount": null,
+      "percent": 10.0,
+      "percent_basis": "total contract value",
+      "is_minimum": true,
+      "bidder_quoted": false,
+      "declaration_permitted": false,
+      "condition": null,
+      "exemptions": [],
+      "forms_accepted": [
+        "Bank Guarantee"
+      ]
+    },
+    "additional_performance_security": {
+      "status": "conditional",
+      "amount": null,
+      "percent": 30.0,
+      "percent_basis": "differential value between the successful bid and average of all the bids received",
+      "is_minimum": null,
+      "bidder_quoted": false,
+      "declaration_permitted": false,
+      "condition": "bid of the successful consulting firm is less than 85% of the average of all bids received",
+      "exemptions": [],
+      "forms_accepted": [
+        "Bank Guarantee"
+      ]
+    }
+  },
+  "eligibility": {
+    "entity_types": [],
+    "registrations": [
+      "INFRACON"
+    ],
+    "certifications": [
+      {
+        "name": "INFRACON registration",
+        "min_level": null,
+        "required": true
+      }
+    ],
+    "min_years_in_business": null,
+    "exclusions": [
+      "barred by Ministry of Road Transport and Highways (MORTH) or its implementing agencies"
+    ],
+    "restricted_country_rule": true,
+    "startup_relaxation": null,
+    "participation_limit": "A consultant (either as sole or as in JV/Association) can be awarded only upto 2 packages.",
+    "jv": {
+      "allowed": true,
+      "max_members": 2,
+      "lead_min_share_pct": null,
+      "member_min_share_pct": null,
+      "lead_min_criteria_pct": 75.0,
+      "partner_min_criteria_pct": 50.0,
+      "partner_restriction": null,
+      "joint_and_several_liability": true,
+      "mou_required": true
+    },
+    "subcontracting": {
+      "allowed": null,
+      "max_pct": null,
+      "scope": null,
+      "prior_approval_required": null
+    },
+    "associate_rules": null
+  },
+  "qualification": {
+    "financial": [
+      {
+        "kind": "turnover",
+        "label": "Annual average turnover",
+        "value": 50000000.0,
+        "basis": "absolute_amount",
+        "period_years": 5,
+        "aggregation": "average",
+        "counted_from": "Consultancy Services",
+        "raw_text": "Rs.5.00 Crores"
+      }
+    ],
+    "experience": [
+      {
+        "category": "DPR Preparation of Highways/ Bridges",
+        "lookback_years": 7,
+        "min_count": null,
+        "min_single_value": null,
+        "min_aggregate_value": null,
+        "min_aggregate_value_multiple_of_cost": null,
+        "min_aggregate_length_multiple": 1.0,
+        "min_single_length_pct": 40.0,
+        "client_types": [
+          "Government"
+        ],
+        "exclusions": [
+          "private concessionaire/contractor"
+        ],
+        "raw_text": "Experience of preparation of Detailed Project Report of two/four/six lane / Feasibility of Two/ four/ six lane projects of aggregate length equal to the indicative length of the package"
+      }
+    ],
+    "adjustment_factors": [
+      {
+        "condition": "For 2-lane projects experience of 4/6 lane also to be considered",
+        "factor": 1.5
+      },
+      {
+        "condition": "For 4/6 laning projects, experience of 2 lane will be considered",
+        "factor": 0.4
+      }
+    ],
+    "bid_capacity": {
+      "required": null,
+      "formula": null,
+      "description": null
+    }
+  },
+  "evaluation": {
+    "weights": {
+      "technical_pct": 80.0,
+      "financial_pct": 20.0,
+      "other": []
+    },
+    "formula_text": "S= STxT + SFxf",
+    "min_technical_score": 80.0,
+    "rating_scale_max": null,
+    "total_points": 100.0,
+    "bid_parameter": null,
+    "stages": [
+      "Proof of Eligibility",
+      "Technical evaluation",
+      "Evaluation of Financial Proposal"
+    ],
+    "criteria": [
+      {
+        "name": "Firm's relevant experience in last 7 years",
+        "max_points": 50.0,
+        "weight": null,
+        "is_pass_fail": null,
+        "sub_criteria": []
+      },
+      {
+        "name": "Material testing, survey & investigation, equipment and software proposed to be used",
+        "max_points": 10.0,
+        "weight": null,
+        "is_pass_fail": null,
+        "sub_criteria": []
+      },
+      {
+        "name": "Qualification and Relevant experience of the proposed key personnel",
+        "max_points": 40.0,
+        "weight": null,
+        "is_pass_fail": null,
+        "sub_criteria": []
+      }
+    ],
+    "per_expert_rule": "The CV of the proposed Team Leader should score at least 80% marks otherwise the entire proposal shall be considered to have failed in the evaluation of Technical Proposals"
+  },
+  "key_personnel": {
+    "summary": "A multi-disciplinary team comprising key personnel and sub-professional staff.",
+    "roles": [
+      {
+        "role": "Team Leader cum Sr. Highway Engineer",
+        "category": "key",
+        "count": 1,
+        "person_months": 12.0,
+        "site_pct": 50.0,
+        "office_pct": 50.0,
+        "qualification": "Graduate in Civil Engineering or equivalent as approved by AICTE.",
+        "certifications": [],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": 12.0,
+        "technical_weight_points": 12.0,
+        "individual_max_points": 100.0,
+        "min_score_pct": 80.0,
+        "rate_per_month": null,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Senior Bridge Engineer",
+        "category": "key",
+        "count": 1,
+        "person_months": 8.0,
+        "site_pct": 50.0,
+        "office_pct": 50.0,
+        "qualification": "Graduate in Civil Engineering or equivalent",
+        "certifications": [],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": 8.0,
+        "technical_weight_points": 10.0,
+        "individual_max_points": 100.0,
+        "min_score_pct": null,
+        "rate_per_month": null,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Highway cum Pavement Engineer",
+        "category": "key",
+        "count": 1,
+        "person_months": 8.0,
+        "site_pct": 50.0,
+        "office_pct": 50.0,
+        "qualification": "Degree in Civil Engineering",
+        "certifications": [],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": 8.0,
+        "technical_weight_points": 10.0,
+        "individual_max_points": 100.0,
+        "min_score_pct": null,
+        "rate_per_month": null,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Material-cum-Geo-technical Engineer – Geologist",
+        "category": "key",
+        "count": 1,
+        "person_months": 10.0,
+        "site_pct": 60.0,
+        "office_pct": 40.0,
+        "qualification": "Graduate in Civil Engineering or M.Sc. Geology",
+        "certifications": [],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": 8.0,
+        "technical_weight_points": null,
+        "individual_max_points": null,
+        "min_score_pct": null,
+        "rate_per_month": null,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Senior Survey Engineer",
+        "category": "key",
+        "count": 1,
+        "person_months": 12.0,
+        "site_pct": 66.67,
+        "office_pct": 33.33,
+        "qualification": "Graduate or equivalent in Civil Engineering or Diploma in Civil Engg or Diploma in Surveying",
+        "certifications": [],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": 8.0,
+        "technical_weight_points": null,
+        "individual_max_points": null,
+        "min_score_pct": null,
+        "rate_per_month": null,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Traffic and Safety expert",
+        "category": "key",
+        "count": 1,
+        "person_months": 8.0,
+        "site_pct": 50.0,
+        "office_pct": 50.0,
+        "qualification": "Graduate in Civil Engineering",
+        "certifications": [
+          "15 days’ certification course on Road Safety Audit from IAHE/IITs/NITs/CRRI"
+        ],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": 6.0,
+        "technical_weight_points": 8.0,
+        "individual_max_points": 100.0,
+        "min_score_pct": null,
+        "rate_per_month": null,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Environmental Specialist",
+        "category": "key",
+        "count": 1,
+        "person_months": 4.0,
+        "site_pct": 50.0,
+        "office_pct": 50.0,
+        "qualification": "Graduate in Civil Engineering / Environment Engineering / Masters in Environment Science",
+        "certifications": [],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": 6.0,
+        "technical_weight_points": null,
+        "individual_max_points": null,
+        "min_score_pct": null,
+        "rate_per_month": null,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Quantity Surveyor / Documentation Expert",
+        "category": "key",
+        "count": 1,
+        "person_months": 10.0,
+        "site_pct": 40.0,
+        "office_pct": 60.0,
+        "qualification": "Graduate or equivalent in Civil Engineering / Certificate course from ‘Institution of Quantity Surveying’",
+        "certifications": [],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": 8.0,
+        "technical_weight_points": null,
+        "individual_max_points": null,
+        "min_score_pct": null,
+        "rate_per_month": null,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Land Acquisition Expert",
+        "category": "key",
+        "count": 1,
+        "person_months": 10.0,
+        "site_pct": 60.0,
+        "office_pct": 40.0,
+        "qualification": "Graduate or equivalent",
+        "certifications": [],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": 15.0,
+        "technical_weight_points": null,
+        "individual_max_points": null,
+        "min_score_pct": null,
+        "rate_per_month": null,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Utility Expert",
+        "category": "key",
+        "count": 1,
+        "person_months": 8.0,
+        "site_pct": 75.0,
+        "office_pct": 25.0,
+        "qualification": "Graduate or equivalent in major engineering disciplines viz. mechanical/ electrical/ civil engineering",
+        "certifications": [],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": 10.0,
+        "technical_weight_points": null,
+        "individual_max_points": null,
+        "min_score_pct": null,
+        "rate_per_month": null,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      }
+    ],
+    "key_person_months_total": 90.0,
+    "all_staff_person_months_total": 284.0,
+    "rules": "The availability of key personnel must be ensured for the duration of project as per proposed work programme."
+  },
+  "contract": {
+    "duration_months": 12.0,
+    "commencement": "within fifteen days of the date of effectiveness of the contract",
+    "price_escalation": null,
+    "phases": [
+      {
+        "name": "Inception",
+        "months": null
+      },
+      {
+        "name": "Feasibility",
+        "months": null
+      },
+      {
+        "name": "LA and Clearances I",
+        "months": null
+      },
+      {
+        "name": "Detailed Project Report",
+        "months": null
+      },
+      {
+        "name": "Technical Schedules",
+        "months": null
+      },
+      {
+        "name": "LA II & Project Clearances",
+        "months": null
+      },
+      {
+        "name": "Award Determination",
+        "months": null
+      },
+      {
+        "name": "Land Possession",
+        "months": null
+      }
+    ],
+    "payment_stages": [
+      {
+        "stage": "Submission of final QAP and Inception Report",
+        "percent": 10.0
+      },
+      {
+        "stage": "Approval of final Alignment Report",
+        "percent": 5.0
+      },
+      {
+        "stage": "Submission of final feasibility Report",
+        "percent": 5.0
+      },
+      {
+        "stage": "Submission Of 3a Notification, Draft 3 A And Approval Of Final Land Acquisition Report",
+        "percent": 5.0
+      },
+      {
+        "stage": "Submission of all utilities shifting proposals",
+        "percent": 2.5
+      },
+      {
+        "stage": "Submission of all stage I clearance proposals",
+        "percent": 5.0
+      },
+      {
+        "stage": "Approval of final DPR report, documents and drawings",
+        "percent": 10.0
+      },
+      {
+        "stage": "Approval of bid documents and draft civil works contract agreement",
+        "percent": 5.0
+      },
+      {
+        "stage": "3D publication for all land parcels and submission of Land Acquisition II report",
+        "percent": 10.0
+      },
+      {
+        "stage": "Stage II clearance approval and submission of final clearances II report",
+        "percent": 5.0
+      },
+      {
+        "stage": "Final approval of utilities shifting estimates and Utilities II report",
+        "percent": 2.5
+      },
+      {
+        "stage": "Completion of award declaration (3G) for 90% of land parcels and Land Award report",
+        "percent": 10.0
+      },
+      {
+        "stage": "Award of package to contractor/concessionaire or 6 months from launch of tender process",
+        "percent": 10.0
+      },
+      {
+        "stage": "Receipt of land possession certificates (3E) for 90% of land parcels and Land Possession report",
+        "percent": 10.0
+      },
+      {
+        "stage": "Amount to be released at earlier of projects COD or 3 years from start of civil work",
+        "percent": 5.0
+      }
+    ],
+    "delay_damages": [
+      {
+        "kind": "penalty",
+        "rate_text": "0.05% of the contract price per day",
+        "max_pct": 5.0,
+        "basis": "contract price"
+      }
+    ]
+  },
+  "additional_conditions": [
+    {
+      "category": "Registration",
+      "text": "Consultant shall mandatorily register and enlist themselves on the MoRTH portal INFRACON and furnish registration details along with its RFP."
+    },
+    {
+      "category": "Biometric Attendance",
+      "text": "All key personnel and sub professional staff shall use fingerprint-based or Aadhar-based biometric attendance system for marking daily attendance."
+    },
+    {
+      "category": "Insurance",
+      "text": "The Consultant shall provide to NHIDCL Professional Liability Insurance (PLI) for a period of Five years beyond completion of Consultancy services."
+    }
+  ],
+  "meta": {
+    "schema_version": "1.2",
+    "confidence": null,
+    "needs_review": false,
+    "review_flags": [],
+    "pages_used": {},
+    "model": "gemini-3.5-flash-lite",
+    "prompt_hash": "810131dd54bb",
+    "extracted_at": "2026-10-22T06:04:02.279626+00:00"
+  }
+}

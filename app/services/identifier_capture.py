@@ -72,6 +72,9 @@ _DATE = re.compile(
     re.IGNORECASE | re.VERBOSE,
 )
 _DOUBLED = re.compile(r"\S{6,}")
+_PLACEHOLDER = re.compile(r"(?:_\s*){2,}|\.{3,}|…|x{3,}", re.IGNORECASE)
+_DATED_AFTER = re.compile(r"\s+(?:dated?|dt)\b(?=\s*[:.\-–\d])", re.IGNORECASE)
+_DATED_START = re.compile(r"^\s*(?:dated?|dt)\b(?=\s*[:.\-–\d])", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -135,6 +138,8 @@ def _classify(label: str) -> tuple[str, int]:
         return "tender_code", 3
     if re.match(r"(?:rfp|rfq|rfx|rfb|rft|eoi|itt|itb|request for proposal)", text):
         return "rfp", 3
+    if re.match(r"contract", text):
+        return "rfp", 1
     if re.match(
         r"(?:tender|bid|enquiry|solicitation|proposal|package|contract|reference|ref)",
         text,
@@ -144,6 +149,8 @@ def _classify(label: str) -> tuple[str, int]:
 
 
 def _is_valid(value: str, strength: int) -> bool:
+    if _PLACEHOLDER.search(value):
+        return False
     if not 3 <= len(value) <= MAX_VALUE_LENGTH or not re.search(r"\d", value):
         return False
     if _DATE.match(value) or "@" in value or value.lower().startswith(("http", "www")):
@@ -278,6 +285,16 @@ def _scan(
 ) -> None:
     for match in _LABEL.finditer(text):
         kind, strength = _classify(match.group("label"))
+        if strength <= 1 and text[: match.start()].strip(_OPENERS):
+            # a bare "No." inside a sentence ("Order No. P-45021/..., vide letter No. ...") is a citation
+            rejected.append(
+                (
+                    page,
+                    re.sub(r"\s+", " ", match.group("label")).strip(),
+                    "(citation, not at line start)",
+                )
+            )
+            continue
         rest = text[match.end() :]
         origin = source
 
@@ -313,6 +330,50 @@ def _scan(
             )
 
 
+def _scan_dated_line(
+    text: str, next_text: str | None, page: int, found: list[Candidate]
+) -> None:
+    """Letter header with no label: the number, then 'Dated :' on the same or the next line.
+    'NHIDCL/DPR/Siliguri-Guwahati/2025-26/ Dated :'"""
+    match = _DATED_AFTER.search(text)
+
+    if match:
+        head = text[: match.start()]
+    elif next_text is not None and _DATED_START.match(next_text):
+        head = text
+    else:
+        return
+
+    head = _undouble(head).strip().lstrip(_OPENERS).rstrip(" /.,:;")
+
+    if _LABEL.search(head):  # a labelled line: _scan already handles it
+        return
+
+    if (
+        not head
+        or len(head.split()) > MAX_VALUE_WORDS
+        or not _looks_like_one_identifier(head)
+    ):
+        return
+
+    value = normalise(head)
+
+    if not _is_valid(value, 1):  # strict shape: at least 2 slashes, not a date
+        return
+
+    found.append(
+        Candidate(
+            kind="rfp",
+            value=value,
+            raw=head,
+            label="(number before 'Dated')",
+            page=page,
+            source="line",
+            strength=2,
+        )
+    )
+
+
 def capture_identifiers(pages: list[DocumentPage]) -> IdentifierCapture:
     """Find explicitly labelled RFP / NIT / tender numbers. Call it on the RAW pages (before cleaning)."""
     squashed_text = squash("\n".join(page.text for page in pages))
@@ -330,6 +391,7 @@ def capture_identifiers(pages: list[DocumentPage]) -> IdentifierCapture:
                     else None
                 )
                 _scan(line, following, page.page_number, "line", found, rejected)
+                _scan_dated_line(line, following, page.page_number, found)
             else:
                 for index, cell in enumerate(cells):
                     following = next((c for c in cells[index + 1 :] if c), None)

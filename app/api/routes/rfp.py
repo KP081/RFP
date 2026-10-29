@@ -5,6 +5,7 @@ from app.core.config import get_settings
 from app.schemas.extraction import TenderExtraction
 from app.schemas.rfp import ExtractionStatus, RFPResponse
 from app.services.rfp_service import RFPService
+from app.services.legacy_adapter import to_legacy
 
 router = APIRouter(prefix="/rfps", tags=["RFPs"])
 
@@ -84,3 +85,8 @@ def get_extraction(rfp_id: str, service: RFPService = Depends(get_rfp_service)):
 @router.delete("/{rfp_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_rfp(rfp_id: str, service: RFPService = Depends(get_rfp_service)):
     service.delete(rfp_id)
+
+@router.get("/{rfp_id}/extraction/legacy")
+def get_extraction_legacy(rfp_id: str, service: RFPService = Depends(get_rfp_service)):
+    """Same extraction in the HR/tender app's shape (RfpExtractionResponse)."""
+    return to_legacy(service.get_extraction(rfp_id))

@@ -1,0 +1,704 @@
+{
+  "document_kind": "tender_document",
+  "family": "consultancy_rfp",
+  "identity": {
+    "tender_code": "efile-299153",
+    "rfp_number": "RFP/ Bhopal-Kota/2025-26/efile-299153",
+    "nit_number": null,
+    "title": "CONSULTANCY SERVICES FOR PREPARATION OF DETAILED PROJECT REPORT (DPR) FOR 4-LANING OF THE BHOPAL- KOTA (TOTAL LENGTH (APPROX): 340 KM) IN THE STATE OF MADHYA PRADESH AND RAJASTHAN",
+    "title_full": "CONSULTANCY SERVICES FOR PREPARATION OF DETAILED PROJECT REPORT (DPR) FOR 4-LANING OF THE BHOPAL- KOTA (TOTAL LENGTH (APPROX): 340 KM) IN THE STATE OF MADHYA PRADESH AND RAJASTHAN",
+    "authority_name": "NATIONAL HIGHWAYS AUTHORITY OF INDIA (NHAI)",
+    "client": "Ministry of Road Transport & Highways",
+    "funding_agency": null,
+    "tender_type": "international",
+    "currency": "INR",
+    "assignment_type": "dpr",
+    "assignment_type_text": "Consultancy Services for Preparation of Detailed Project Report (DPR)",
+    "sector": "highways",
+    "selection_method": "bid_parameter",
+    "selection_method_basis": "stated",
+    "contract_form": "other",
+    "no_of_covers": 2,
+    "eportal_url": "https://eprocure.gov.in/eprocure/app",
+    "contact": {
+      "name": "Rahul Singh",
+      "designation": "General Manager (T), Madhya Pradesh",
+      "email": "Rahulsingh@nhai.org",
+      "phone": "0120-4001 002",
+      "address": "G-5&6, Sector 10, Dwarka, New Delhi-110075"
+    }
+  },
+  "project": {
+    "description": "Consultancy Services for Preparation of Detailed Project Report (DPR) for 4-laning of the Bhopal- Kota in the state of Madhya Pradesh and Rajasthan",
+    "states": [
+      "Madhya Pradesh",
+      "Rajasthan"
+    ],
+    "routes": [
+      "Bhopal",
+      "Kota"
+    ],
+    "length_km": 340.0,
+    "lanes": "4-lane",
+    "project_mode": null,
+    "estimated_contract_value": {
+      "value": null,
+      "value_with_tax": null,
+      "raw_text": null
+    },
+    "project_cost": {
+      "value": null,
+      "value_with_tax": null,
+      "raw_text": null
+    },
+    "packages": []
+  },
+  "dates": {
+    "published": "2026-02-09",
+    "download_start": "2026-02-09",
+    "download_end": "2026-03-25",
+    "clarification_end": "2026-03-13",
+    "submission_start": "2026-02-09",
+    "submission_end": "2026-03-25",
+    "hard_copy_deadline": null,
+    "technical_opening": "2026-03-27",
+    "financial_opening": null,
+    "validity_days": 120,
+    "validity_basis": "from the date of Proposal Opening",
+    "pre_bid": {
+      "required": true,
+      "date": null,
+      "place": "NHAI HQ"
+    }
+  },
+  "securities": {
+    "document_fee": {
+      "value": 5000.0,
+      "value_with_tax": null,
+      "raw_text": "Rs 5,000/-"
+    },
+    "bid_security": {
+      "status": "nil",
+      "amount": null,
+      "percent": null,
+      "percent_basis": null,
+      "is_minimum": null,
+      "bidder_quoted": null,
+      "declaration_permitted": true,
+      "exemptions": [],
+      "forms_accepted": [
+        "Insurance Surety Bonds",
+        "Bank Guarantee",
+        "payment online"
+      ]
+    },
+    "performance_security": {
+      "status": "required",
+      "amount": null,
+      "percent": 5.0,
+      "percent_basis": "contract Price and PBG quote by the bidder",
+      "is_minimum": true,
+      "bidder_quoted": true,
+      "declaration_permitted": false,
+      "exemptions": [],
+      "forms_accepted": [
+        "Insurance Surety Bonds",
+        "Bank Guarantee",
+        "Fixed Deposit Receipt",
+        "Account Payee Demand Draft",
+        "online payment"
+      ]
+    },
+    "additional_performance_security": {
+      "status": "not_stated",
+      "amount": null,
+      "percent": null,
+      "percent_basis": null,
+      "is_minimum": null,
+      "bidder_quoted": null,
+      "declaration_permitted": null,
+      "exemptions": [],
+      "forms_accepted": []
+    }
+  },
+  "eligibility": {
+    "entity_types": [
+      "a natural person (an individual Consultant)",
+      "a private entity (a Consulting Company/ LLP /Partnership firm/ Society registered under an applicable Act in India)",
+      "a public Entity",
+      "Joint Venture/ Consortium (JV/C)"
+    ],
+    "registrations": [
+      "GSTIN",
+      "PAN",
+      "EPF",
+      "ESI",
+      "Labour"
+    ],
+    "certifications": [
+      {
+        "name": "INFRACON registration",
+        "min_level": null,
+        "required": true
+      }
+    ],
+    "min_years_in_business": null,
+    "exclusions": [
+      "not be insolvent, in receivership, bankrupt or being wound up",
+      "blacklisted/ banned/ debarred by MoRT&H/NHAI/NHIDCL/BRO/State PWD",
+      "convicted of offences involving moral turpitude"
+    ],
+    "restricted_country_rule": true,
+    "startup_relaxation": null,
+    "participation_limit": "The Consultant shall not participate in more than one Proposal in this RFP Process.",
+    "jv": {
+      "allowed": true,
+      "max_members": 2,
+      "lead_min_share_pct": null,
+      "member_min_share_pct": null,
+      "lead_min_criteria_pct": 60.0,
+      "partner_min_criteria_pct": 40.0,
+      "partner_restriction": "Only 1 JV partner allowed who should be an international firm of repute i.e. having experience of DPR of Highway Projects for multilateral agencies such as ADB/World Bank/JICA",
+      "joint_and_several_liability": true,
+      "mou_required": true
+    },
+    "subcontracting": {
+      "allowed": true,
+      "max_pct": 10.0,
+      "scope": "specialized survey & investigation works after prior approval of the Implementing Agency",
+      "prior_approval_required": true
+    },
+    "associate_rules": null
+  },
+  "qualification": {
+    "financial": [
+      {
+        "kind": "turnover",
+        "label": "Annual average turnover",
+        "value": 100000000.0,
+        "basis": "absolute_amount",
+        "period_years": 5,
+        "aggregation": "average",
+        "counted_from": "firm",
+        "raw_text": "Rs.10.00 Crores"
+      }
+    ],
+    "experience": [
+      {
+        "category": "DPR of Normal Highways Projects",
+        "lookback_years": 10,
+        "min_count": 1,
+        "min_single_value": null,
+        "min_aggregate_value": null,
+        "min_aggregate_value_multiple_of_cost": null,
+        "min_aggregate_length_multiple": 1.0,
+        "min_single_length_pct": 40.0,
+        "client_types": [
+          "Government"
+        ],
+        "exclusions": [
+          "private concessionaire/contractor",
+          "municipal limits/city roads"
+        ],
+        "raw_text": "Experience of preparation of Detailed Project Report of two/four/six lane / Feasibility of Two/ four/ six lane projects of aggregate length equal to the indicative length of the package"
+      }
+    ],
+    "adjustment_factors": [
+      {
+        "condition": "2-lane projects experience",
+        "factor": 1.5
+      },
+      {
+        "condition": "4/6 laning projects experience for 2 lane projects",
+        "factor": 0.4
+      }
+    ],
+    "bid_capacity": {
+      "required": true,
+      "formula": "R = CL x TF - RP",
+      "description": "Residual DPR Bid Capacity 'R' shall be more than the tentative length of the Project"
+    }
+  },
+  "evaluation": {
+    "weights": {
+      "technical_pct": 30.0,
+      "financial_pct": null,
+      "other": [
+        {
+          "name": "DPR Rating",
+          "weight_pct": 30.0
+        },
+        {
+          "name": "PBG Quote",
+          "weight_pct": 40.0
+        }
+      ]
+    },
+    "formula_text": "S = (St x T + Sf x P)/100 + Sr",
+    "min_technical_score": 70.0,
+    "rating_scale_max": 100.0,
+    "total_points": 100.0,
+    "bid_parameter": "PBG Quote",
+    "stages": [
+      "technical",
+      "financial"
+    ],
+    "criteria": [
+      {
+        "name": "Firm’s Profile, turnover and professionals working with the firm",
+        "max_points": 5.0,
+        "weight": null,
+        "is_pass_fail": null,
+        "sub_criteria": []
+      },
+      {
+        "name": "Firm’s relevant experience in last 10 years for DPR work",
+        "max_points": 30.0,
+        "weight": null,
+        "is_pass_fail": null,
+        "sub_criteria": []
+      },
+      {
+        "name": "Material testing, survey & investigation, equipment and software proposed to be used for DPR work",
+        "max_points": 2.5,
+        "weight": null,
+        "is_pass_fail": null,
+        "sub_criteria": []
+      },
+      {
+        "name": "Experience in use of technology for road inspection in supervision work/quality/safety audit",
+        "max_points": 2.5,
+        "weight": null,
+        "is_pass_fail": null,
+        "sub_criteria": []
+      },
+      {
+        "name": "Qualification and Relevant experience of the proposed key personnel",
+        "max_points": 60.0,
+        "weight": null,
+        "is_pass_fail": null,
+        "sub_criteria": []
+      }
+    ],
+    "per_expert_rule": "All Key Experts must meet the minimum requirements specified. If any Key Expert fails to meet these minimum requirements, his score shall be evaluated as Nil."
+  },
+  "key_personnel": {
+    "summary": "The assignment requires 10 key personnel roles with a total project assignment duration of 12 months.",
+    "roles": [
+      {
+        "role": "Team Leader Cum Senior Highway Engineer",
+        "category": "key",
+        "count": 1,
+        "person_months": 12.0,
+        "site_pct": 50.0,
+        "office_pct": 50.0,
+        "qualification": "Graduation in Civil Engineering or Equivalent",
+        "certifications": [],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": null,
+        "technical_weight_points": 14.0,
+        "individual_max_points": 100.0,
+        "min_score_pct": 70.0,
+        "rate_per_month": 500000.0,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Senior Bridge Design Engineer",
+        "category": "key",
+        "count": 1,
+        "person_months": 7.0,
+        "site_pct": 30.0,
+        "office_pct": 70.0,
+        "qualification": "Graduation in Civil Engineering",
+        "certifications": [],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": null,
+        "technical_weight_points": 10.0,
+        "individual_max_points": 100.0,
+        "min_score_pct": 70.0,
+        "rate_per_month": 500000.0,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Highway Design Engineer",
+        "category": "key",
+        "count": 1,
+        "person_months": 8.0,
+        "site_pct": 40.0,
+        "office_pct": 60.0,
+        "qualification": "Graduation in Civil Engineering",
+        "certifications": [],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": null,
+        "technical_weight_points": 7.5,
+        "individual_max_points": 100.0,
+        "min_score_pct": 70.0,
+        "rate_per_month": 350000.0,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Material-cum-Geo-technical Engineer – Geologist",
+        "category": "key",
+        "count": 1,
+        "person_months": 8.0,
+        "site_pct": 70.0,
+        "office_pct": 30.0,
+        "qualification": "Graduation in Civil Engineering or M.Sc. in Geology",
+        "certifications": [],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": null,
+        "technical_weight_points": 4.5,
+        "individual_max_points": 100.0,
+        "min_score_pct": 70.0,
+        "rate_per_month": 350000.0,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Senior Survey Engineer",
+        "category": "key",
+        "count": 1,
+        "person_months": 9.0,
+        "site_pct": 70.0,
+        "office_pct": 30.0,
+        "qualification": "Diploma in Civil Engg or Diploma in Surveying",
+        "certifications": [],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": null,
+        "technical_weight_points": 4.5,
+        "individual_max_points": 100.0,
+        "min_score_pct": 70.0,
+        "rate_per_month": 200000.0,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Traffic and Road Safety Expert",
+        "category": "key",
+        "count": 1,
+        "person_months": 4.0,
+        "site_pct": 50.0,
+        "office_pct": 50.0,
+        "qualification": "Graduation in Civil Engineering",
+        "certifications": [],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": null,
+        "technical_weight_points": 7.0,
+        "individual_max_points": 100.0,
+        "min_score_pct": 70.0,
+        "rate_per_month": 350000.0,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Environmental Specialist",
+        "category": "key",
+        "count": 1,
+        "person_months": 6.0,
+        "site_pct": 70.0,
+        "office_pct": 30.0,
+        "qualification": "Graduation in Civil Engineering / Environment Engineering / Masters in Environment Science",
+        "certifications": [],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": null,
+        "technical_weight_points": 4.0,
+        "individual_max_points": 100.0,
+        "min_score_pct": 70.0,
+        "rate_per_month": 150000.0,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Quantity Surveyor / Documentation Expert",
+        "category": "key",
+        "count": 1,
+        "person_months": 5.0,
+        "site_pct": 40.0,
+        "office_pct": 60.0,
+        "qualification": "Graduation in Civil Engineering",
+        "certifications": [],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": null,
+        "technical_weight_points": 2.5,
+        "individual_max_points": 100.0,
+        "min_score_pct": 70.0,
+        "rate_per_month": 150000.0,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Land Acquisition Expert",
+        "category": "key",
+        "count": 1,
+        "person_months": 11.0,
+        "site_pct": 80.0,
+        "office_pct": 20.0,
+        "qualification": "Graduation or equivalent",
+        "certifications": [],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": null,
+        "technical_weight_points": 4.0,
+        "individual_max_points": 100.0,
+        "min_score_pct": 70.0,
+        "rate_per_month": 150000.0,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Utility Expert",
+        "category": "key",
+        "count": 1,
+        "person_months": 6.0,
+        "site_pct": 80.0,
+        "office_pct": 20.0,
+        "qualification": "Graduation in Electrical Engineering",
+        "certifications": [],
+        "location": "Site and Design Office",
+        "responsibilities": null,
+        "min_experience_years": null,
+        "technical_weight_points": 2.0,
+        "individual_max_points": 100.0,
+        "min_score_pct": 70.0,
+        "rate_per_month": 150000.0,
+        "cost": null,
+        "is_conditional": false,
+        "condition": null
+      },
+      {
+        "role": "Tunnel Design Expert",
+        "category": "key",
+        "count": null,
+        "person_months": null,
+        "site_pct": null,
+        "office_pct": null,
+        "qualification": null,
+        "certifications": [],
+        "location": null,
+        "responsibilities": null,
+        "min_experience_years": null,
+        "technical_weight_points": null,
+        "individual_max_points": null,
+        "min_score_pct": null,
+        "rate_per_month": 500000.0,
+        "cost": null,
+        "is_conditional": true,
+        "condition": "In case tunnels are proposed in the final alignment approved by the Authority"
+      },
+      {
+        "role": "Senior Geophysicist",
+        "category": "key",
+        "count": null,
+        "person_months": null,
+        "site_pct": null,
+        "office_pct": null,
+        "qualification": null,
+        "certifications": [],
+        "location": null,
+        "responsibilities": null,
+        "min_experience_years": null,
+        "technical_weight_points": null,
+        "individual_max_points": null,
+        "min_score_pct": null,
+        "rate_per_month": 350000.0,
+        "cost": null,
+        "is_conditional": true,
+        "condition": "In case tunnels are proposed in the final alignment approved by the Authority"
+      },
+      {
+        "role": "Senior Geomatics Expert",
+        "category": "key",
+        "count": null,
+        "person_months": null,
+        "site_pct": null,
+        "office_pct": null,
+        "qualification": null,
+        "certifications": [],
+        "location": null,
+        "responsibilities": null,
+        "min_experience_years": null,
+        "technical_weight_points": null,
+        "individual_max_points": null,
+        "min_score_pct": null,
+        "rate_per_month": 350000.0,
+        "cost": null,
+        "is_conditional": true,
+        "condition": "For Projects in Hilly/Mountainous terrain (replaces Material-cum-Geo-technical Engineer)"
+      },
+      {
+        "role": "Senior Hydrology and Hydraulics Expert",
+        "category": "key",
+        "count": null,
+        "person_months": null,
+        "site_pct": null,
+        "office_pct": null,
+        "qualification": null,
+        "certifications": [],
+        "location": null,
+        "responsibilities": null,
+        "min_experience_years": null,
+        "technical_weight_points": null,
+        "individual_max_points": null,
+        "min_score_pct": null,
+        "rate_per_month": 350000.0,
+        "cost": null,
+        "is_conditional": true,
+        "condition": "For Projects in Hilly/Mountainous terrain (replaces Utility Expert)"
+      }
+    ],
+    "key_person_months_total": 76.0,
+    "all_staff_person_months_total": null,
+    "rules": "No Replacement of Team Leader shall be allowed."
+  },
+  "contract": {
+    "duration_months": 12.0,
+    "commencement": "within 15 days of notice or from the date of Issue of LOA or signing of the Contract agreement, whichever is earlier",
+    "price_escalation": null,
+    "phases": [
+      {
+        "name": "Feasibility Study",
+        "months": 3.0
+      },
+      {
+        "name": "DPR Study",
+        "months": 9.0
+      }
+    ],
+    "payment_stages": [
+      {
+        "stage": "Submission of final QAP and Inception Report",
+        "percent": 2.5
+      },
+      {
+        "stage": "Approval of final Alignment Report, Traffic Study, Topographical Study and Submission of ToR for EAC",
+        "percent": 10.0
+      },
+      {
+        "stage": "Submission of final feasibility Report",
+        "percent": 7.5
+      },
+      {
+        "stage": "Submission of complete Land Acquisition Proposal",
+        "percent": 10.0
+      },
+      {
+        "stage": "Submission Of 3a Notification, Draft 3 A and Publication of 3a, 3A notifications",
+        "percent": 5.0
+      },
+      {
+        "stage": "Submission of all utilities shifting proposals to utility owning agencies and submission of utilities relocation plan to Authority",
+        "percent": 5.0
+      },
+      {
+        "stage": "Submission of Bidding Documents and Technical Schedules",
+        "percent": 5.0
+      },
+      {
+        "stage": "Final approval of utilities shifting estimates and submission of Utilities report, ROB GADs from Railway, Irrigation other concerned departments",
+        "percent": 5.0
+      },
+      {
+        "stage": "Submission of all stage I clearance (Forest, Wildlife, EC) proposals on Parivesh portal and acceptance by Nodal Officer",
+        "percent": 5.0
+      },
+      {
+        "stage": "Submission and Approval of Final DPR Report, documents and drawings",
+        "percent": 5.0
+      },
+      {
+        "stage": "Clearance of the project by NPG (if applicable) and Appraisal of Project by SFC (if applicable)",
+        "percent": 5.0
+      },
+      {
+        "stage": "Administrative & Financial Approval of Project by the Competent Authority",
+        "percent": 5.0
+      },
+      {
+        "stage": "Stage II clearance approval and submission of final clearances II report",
+        "percent": 5.0
+      },
+      {
+        "stage": "3D publication for all land parcels identified in item 5 above and submission of Land Acquisition II report",
+        "percent": 5.0
+      },
+      {
+        "stage": "Completion of award declaration (3G) for 90% of land parcels identified and submission of Land Award report",
+        "percent": 5.0
+      },
+      {
+        "stage": "Receipt of land possession certificates (3H) for 90% of all land parcels identified in LAC report and submission of Land Possession report",
+        "percent": 5.0
+      },
+      {
+        "stage": "Completion of Condition Precedent on Part of Authority",
+        "percent": 4.5
+      },
+      {
+        "stage": "Completion of Mutation of Land Record and entry in Highway Land Register with the Highway Administration",
+        "percent": 1.0
+      },
+      {
+        "stage": "Amount to be released at earlier of project's COD or 3 years from start of civil work",
+        "percent": 4.5
+      }
+    ],
+    "delay_damages": [
+      {
+        "kind": "liquidated_damages",
+        "rate_text": "1/2% per cent of the related monthly bill of the Services for each week of delay",
+        "max_pct": 10.0,
+        "basis": "entire value of the Contract of Services"
+      },
+      {
+        "kind": "penalty",
+        "rate_text": "0.05% of the contract price per day",
+        "max_pct": 5.0,
+        "basis": "contract value"
+      }
+    ]
+  },
+  "additional_conditions": [
+    {
+      "category": "Biometric Attendance",
+      "text": "All key personnel and sub professional staff of the DPR Consultants shall use the fingerprint based (biometric) attendance system for marking their daily attendance."
+    },
+    {
+      "category": "Professional Liability Insurance",
+      "text": "The Consultant shall provide to NHAI Professional Liability Insurance (PLI) for a period of Five years beyond completion of Consultancy services."
+    },
+    {
+      "category": "Geotechnical Agency",
+      "text": "DPR consultant shall get all the geotechnical investigations and testing done through the agencies satisfying the NABL accreditation Criteria."
+    }
+  ],
+  "meta": {
+    "schema_version": "1.2",
+    "confidence": null,
+    "needs_review": false,
+    "review_flags": [],
+    "pages_used": {},
+    "model": "gemini-3.5-flash-lite",
+    "prompt_hash": "97e1ed24f92c",
+    "extracted_at": "2026-10-19T06:08:40.037353+00:00"
+  }
+}

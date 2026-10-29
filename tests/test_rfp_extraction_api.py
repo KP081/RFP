@@ -221,3 +221,12 @@ def test_old_records_without_extraction_fields_still_load(env):
     info = env.client.get(f"{API}/x").json()
 
     assert info["extraction_status"] == "not_started" and info["status"] == "ready"
+
+def test_legacy_shape_of_the_stored_extraction(env):
+    rfp_id = upload(env)["rfp_id"]
+
+    body = env.client.get(f"{API}/{rfp_id}/extraction/legacy").json()
+
+    assert body["TenderTitleFull"] == "Fake tender 1"
+    assert "eligibility_criteria_amount" in body["EligibilityCriteriaJson"]
+    assert env.client.get(f"{API}/nope/extraction/legacy").status_code == 404

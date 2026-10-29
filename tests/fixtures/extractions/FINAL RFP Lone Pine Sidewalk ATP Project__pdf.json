@@ -1,0 +1,312 @@
+{
+  "document_kind": "tender_document",
+  "family": "consultancy_rfp",
+  "identity": {
+    "tender_code": "TR-19-028",
+    "rfp_number": "ATPSB1L-5948(096)",
+    "nit_number": null,
+    "title": "Lone Pine Sidewalk Construction and ADA Improvement Project",
+    "title_full": "Active Transportation Program (ATP) Lone Pine Sidewalk Construction and ADA Improvement Project",
+    "authority_name": "County of Inyo",
+    "client": "Inyo County Department of Public Works",
+    "funding_agency": null,
+    "tender_type": null,
+    "currency": "USD",
+    "assignment_type": "other",
+    "assignment_type_text": "Environmental, Design, PS&E, and Construction Support Services",
+    "sector": "Transport",
+    "selection_method": "qcbs",
+    "selection_method_basis": "stated",
+    "contract_form": "cost_plus_fixed_fee",
+    "no_of_covers": 2,
+    "eportal_url": "https://www.inyocounty.us/services/county-administration/bid-request-rfp",
+    "contact": {
+      "name": "Trevor Taylor",
+      "designation": null,
+      "email": "ttaylor@inyocounty.us",
+      "phone": null,
+      "address": "168 N. Edwards Street/ PO Drawer Q, Independence, CA 93526"
+    }
+  },
+  "project": {
+    "description": "Install new sections of sidewalk in the community of Lone Pine to promote connectivity within the downtown business center and establish a safety corridor along Jackson Street from Whitney Portal Road to East Begole Street for access to the Lo-Inyo Elementary School.",
+    "states": [
+      "California"
+    ],
+    "routes": [],
+    "length_km": null,
+    "lanes": null,
+    "project_mode": null,
+    "estimated_contract_value": {
+      "value": 325000.0,
+      "value_with_tax": null,
+      "raw_text": "$325,000"
+    },
+    "project_cost": {
+      "value": 1589000.0,
+      "value_with_tax": null,
+      "raw_text": "$1,589,000"
+    },
+    "packages": []
+  },
+  "dates": {
+    "published": "2020-01-02",
+    "download_start": null,
+    "download_end": null,
+    "clarification_end": "2020-01-21",
+    "submission_start": null,
+    "submission_end": "2020-01-28",
+    "hard_copy_deadline": "2020-01-28",
+    "technical_opening": null,
+    "financial_opening": null,
+    "validity_days": 90,
+    "validity_basis": "following the date proposal submittals are due",
+    "pre_bid": {
+      "required": null,
+      "date": null,
+      "place": null
+    }
+  },
+  "securities": {
+    "document_fee": {
+      "value": null,
+      "value_with_tax": null,
+      "raw_text": null
+    },
+    "bid_security": {
+      "status": "not_stated",
+      "amount": null,
+      "percent": null,
+      "percent_basis": null,
+      "is_minimum": null,
+      "bidder_quoted": null,
+      "declaration_permitted": null,
+      "exemptions": [],
+      "forms_accepted": []
+    },
+    "performance_security": {
+      "status": "not_stated",
+      "amount": null,
+      "percent": null,
+      "percent_basis": null,
+      "is_minimum": null,
+      "bidder_quoted": null,
+      "declaration_permitted": null,
+      "exemptions": [],
+      "forms_accepted": []
+    },
+    "additional_performance_security": {
+      "status": "not_stated",
+      "amount": null,
+      "percent": null,
+      "percent_basis": null,
+      "is_minimum": null,
+      "bidder_quoted": null,
+      "declaration_permitted": null,
+      "exemptions": [],
+      "forms_accepted": []
+    }
+  },
+  "eligibility": {
+    "entity_types": [],
+    "registrations": [],
+    "certifications": [],
+    "min_years_in_business": null,
+    "exclusions": [
+      "blacklisted"
+    ],
+    "restricted_country_rule": null,
+    "startup_relaxation": null,
+    "participation_limit": null,
+    "jv": {
+      "allowed": null,
+      "max_members": null,
+      "lead_min_share_pct": null,
+      "member_min_share_pct": null,
+      "lead_min_criteria_pct": null,
+      "partner_min_criteria_pct": null,
+      "partner_restriction": null,
+      "joint_and_several_liability": null,
+      "mou_required": null
+    },
+    "subcontracting": {
+      "allowed": null,
+      "max_pct": null,
+      "scope": null,
+      "prior_approval_required": true
+    },
+    "associate_rules": null
+  },
+  "qualification": {
+    "financial": [],
+    "experience": [
+      {
+        "category": "comparable projects",
+        "lookback_years": 5,
+        "min_count": 3,
+        "min_single_value": null,
+        "min_aggregate_value": null,
+        "min_aggregate_value_multiple_of_cost": null,
+        "min_aggregate_length_multiple": null,
+        "min_single_length_pct": null,
+        "client_types": [],
+        "exclusions": [],
+        "raw_text": "detailed description of a minimum of three (3) projects within the past five (5) years"
+      }
+    ],
+    "adjustment_factors": [],
+    "bid_capacity": {
+      "required": null,
+      "formula": null,
+      "description": null
+    }
+  },
+  "evaluation": {
+    "weights": {
+      "technical_pct": null,
+      "financial_pct": null,
+      "other": []
+    },
+    "formula_text": null,
+    "min_technical_score": null,
+    "rating_scale_max": 5.0,
+    "total_points": 500.0,
+    "bid_parameter": null,
+    "stages": [
+      "Written Evaluation",
+      "Oral Interviews"
+    ],
+    "criteria": [
+      {
+        "name": "Completeness of Response",
+        "max_points": null,
+        "weight": null,
+        "is_pass_fail": true,
+        "sub_criteria": []
+      },
+      {
+        "name": "Qualifications & Experience",
+        "max_points": null,
+        "weight": 20.0,
+        "is_pass_fail": null,
+        "sub_criteria": []
+      },
+      {
+        "name": "Organization & Approach",
+        "max_points": null,
+        "weight": 15.0,
+        "is_pass_fail": null,
+        "sub_criteria": []
+      },
+      {
+        "name": "Scope of Services to be Provided",
+        "max_points": null,
+        "weight": 20.0,
+        "is_pass_fail": null,
+        "sub_criteria": []
+      },
+      {
+        "name": "Schedule of Work",
+        "max_points": null,
+        "weight": 10.0,
+        "is_pass_fail": null,
+        "sub_criteria": []
+      },
+      {
+        "name": "Conflict of Interest Statement",
+        "max_points": null,
+        "weight": null,
+        "is_pass_fail": true,
+        "sub_criteria": []
+      },
+      {
+        "name": "Local Presence",
+        "max_points": null,
+        "weight": 5.0,
+        "is_pass_fail": null,
+        "sub_criteria": []
+      },
+      {
+        "name": "References",
+        "max_points": null,
+        "weight": 10.0,
+        "is_pass_fail": null,
+        "sub_criteria": []
+      },
+      {
+        "name": "Ability to Enter into Contract 146.1",
+        "max_points": null,
+        "weight": null,
+        "is_pass_fail": true,
+        "sub_criteria": []
+      },
+      {
+        "name": "Presentation by Team",
+        "max_points": null,
+        "weight": 10.0,
+        "is_pass_fail": null,
+        "sub_criteria": []
+      },
+      {
+        "name": "Q&A Response to Panel Questions",
+        "max_points": null,
+        "weight": 10.0,
+        "is_pass_fail": null,
+        "sub_criteria": []
+      }
+    ],
+    "per_expert_rule": null
+  },
+  "key_personnel": {
+    "summary": null,
+    "roles": [],
+    "key_person_months_total": null,
+    "all_staff_person_months_total": null,
+    "rules": null
+  },
+  "contract": {
+    "duration_months": null,
+    "commencement": null,
+    "price_escalation": null,
+    "phases": [
+      {
+        "name": "Environmental (PA&ED Phase)",
+        "months": 10.0
+      },
+      {
+        "name": "Design (PS&E) Phase",
+        "months": 12.0
+      },
+      {
+        "name": "ROW Phase",
+        "months": 3.0
+      },
+      {
+        "name": "Construction Phase",
+        "months": 6.5
+      }
+    ],
+    "payment_stages": [],
+    "delay_damages": []
+  },
+  "additional_conditions": [
+    {
+      "category": "Insurance",
+      "text": "Consultant shall procure and maintain commercial general liability, automobile liability, workers' compensation, and professional liability insurance."
+    },
+    {
+      "category": "Local Presence",
+      "text": "Consultant must address familiarity with the rural nature of Inyo County and Lone Pine."
+    }
+  ],
+  "meta": {
+    "schema_version": "1.2",
+    "confidence": null,
+    "needs_review": false,
+    "review_flags": [],
+    "pages_used": {},
+    "model": "gemini-3.5-flash-lite",
+    "prompt_hash": "71acc5a37a47",
+    "extracted_at": "2026-10-16T10:33:57.678955+00:00"
+  }
+}

@@ -78,16 +78,23 @@ DraftChIIARFP.pdf  (pages 1-40)
      p.35 'No.' -> 'Eligible Offset Products /Services Being Offered'
 ================================================================================
 FINAL RFP Lone Pine Sidewalk ATP Project.pdf  (pages 1-40)
-  rfp         : '146.1-Actual'  (p.27, label 'Contract No.', line, strength 2, seen 14x)
+  rfp         : -
   nit         : -
   tender_code : -
 
-  labels found but value refused (5), first 12:
+  labels found but value refused (19), first 12:
      p.15 'No.' -> 'Written Evaluation Criteria'
      p.15 'No.' -> 'Written Evaluation Criteria'
      p.17 'No.' -> 'Evaluation Criteria'
+     p.27 'Contract No.' -> '146.1 - Actual Cost-Plus Fixed Fee'
+     p.28 'Contract No.' -> '146.1 - Actual Cost-Plus Fixed Fee'
      p.29 'F. No' -> 'payment will be made prior to approval of any work, nor for any work performed'
      p.29 'contract number' -> 'and project title. Final invoice must contain the final cost and all credits due County'
+     p.29 'Contract No.' -> '146.1 - Actual Cost-Plus Fixed Fee'
+     p.30 'Contract No.' -> '146.1 - Actual Cost-Plus Fixed Fee'
+     p.31 'Contract No.' -> '146.1 - Actual Cost-Plus Fixed Fee'
+     p.32 'Contract No.' -> '146.1 - Actual Cost-Plus Fixed Fee'
+     p.33 'Contract No.' -> '146.1 - Actual Cost-Plus Fixed Fee'
 ================================================================================
 Public Relations and Marketing Services 2019.pdf  (pages 1-40)
   rfp         : -
@@ -127,7 +134,7 @@ RFP.pdf  (pages 1-40)
      p.13 'No.' -> 'Services/Infrastructure'
 ================================================================================
 rfp_4_0.pdf  (pages 1-40)
-  rfp         : -
+  rfp         : 'NHIDCL/DPR/Siliguri-Guwahati/2025-26'  (p.6, label "(number before 'Dated')", line, strength 2, seen 1x)
   nit         : -
   tender_code : -
 
@@ -174,11 +181,12 @@ RFP_Gandhidham-Cluster-Final-2702.pdf  (pages 1-40)
      p.35 'No.' -> 'ITI Name (Hub/Spoke)'
 ================================================================================
 RFP_Public-Health-Ethics-V3-005.pdf  (pages 1-40)
-  rfp         : '2024-_ _ _ _ _ _'  (p.8, label 'CONTRACT #', line, strength 2, seen 1x)
+  rfp         : -
   nit         : -
   tender_code : -
 
-  labels found but value refused (3), first 12:
+  labels found but value refused (4), first 12:
+     p.8 'CONTRACT #' -> '2024- _ _ _ _ _ _'
      p.9 'No.' -> 'm'
      p.13 'No.' -> 'DUNS No.:________________________'
      p.13 'No.' -> ':________________________'
