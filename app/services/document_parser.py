@@ -23,12 +23,17 @@ class DocumentPage:
     text: str
 
 
-def extract_pages_from_pdf(file_path: Path) -> list[DocumentPage]:
+def extract_pages_from_pdf(
+    file_path: Path, max_pages: int | None = None
+) -> list[DocumentPage]:
     reader = PdfReader(file_path)
 
     pages = []
 
     for page_number, page in enumerate(reader.pages, start=1):
+        if max_pages is not None and page_number > max_pages:
+            break
+
         text = page.extract_text() or ""
 
         pages.append(
@@ -256,11 +261,16 @@ def _page_text_with_tables(page) -> str:
     return "\n".join(parts).strip()
 
 
-def extract_pages_from_pdf_with_tables(file_path: Path) -> list[DocumentPage]:
+def extract_pages_from_pdf_with_tables(
+    file_path: Path, max_pages: int | None = None
+) -> list[DocumentPage]:
     pages = []
 
     with pdfplumber.open(file_path) as pdf:
         for page_number, page in enumerate(pdf.pages, start=1):
+            if max_pages is not None and page_number > max_pages:
+                break
+
             try:
                 text = _page_text_with_tables(page)
             except Exception:
@@ -316,13 +326,16 @@ def extract_pages_from_docx(file_path: Path) -> list[DocumentPage]:
     return [DocumentPage(page_number=1, text=text)]
 
 
-def extract_pages(file_path: Path, tables: bool = False) -> list[DocumentPage]:
+def extract_pages(
+    file_path: Path, tables: bool = False, max_pages: int | None = None
+) -> list[DocumentPage]:
+    """`max_pages` reads only the first N pages of a PDF (a DOCX is one page: it ignores it)."""
     extension = file_path.suffix.lower()
 
     if extension == ".pdf":
         if tables:
-            return extract_pages_from_pdf_with_tables(file_path)
-        return extract_pages_from_pdf(file_path)
+            return extract_pages_from_pdf_with_tables(file_path, max_pages)
+        return extract_pages_from_pdf(file_path, max_pages)
 
     if extension == ".docx":
         return extract_pages_from_docx(file_path)

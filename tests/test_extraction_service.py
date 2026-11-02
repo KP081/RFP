@@ -241,7 +241,7 @@ def test_pdf_mode_uploads_cleans_up_and_raises_review_flags():
 
 def test_text_mode_reads_pages_and_flags_pages_without_text(monkeypatch):
     pages = [NS(page_number=1, text="hello world " * 10), NS(page_number=2, text="")]
-    monkeypatch.setattr(E, "extract_pages", lambda path: pages)
+    monkeypatch.setattr(E, "load_pages", lambda path, **kwargs: pages)
     llm = FakeLLM({"identity": {"title": "Y"}})
 
     result = E.ExtractionService(llm_service=llm).extract(Path("a.pdf"), mode="text")
@@ -254,7 +254,7 @@ def test_text_mode_reads_pages_and_flags_pages_without_text(monkeypatch):
 
 
 def test_docx_always_uses_text_mode_and_failure_still_deletes_the_upload(monkeypatch):
-    monkeypatch.setattr(E, "extract_pages", lambda path: [])
+    monkeypatch.setattr(E, "load_pages", lambda path, **kwargs: [])
     assert (
         E.ExtractionService(llm_service=FakeLLM({}))
         .extract(Path("a.docx"), mode="pdf")
@@ -378,3 +378,278 @@ def test_fingerprint_follows_schema_model_mode_and_prompt(monkeypatch):
 
     monkeypatch.setattr(E, "load_prompt", lambda name: "a different prompt")
     assert service.fingerprint(Path("a.pdf")) != first
+
+
+# ---------------------------------------------------------------- text mode reads tables and cleans the text
+
+
+def page(number, *lines):
+    return NS(page_number=number, text="\n".join(lines))
+
+
+def test_text_mode_reads_tables_and_sends_cleaned_text(monkeypatch):
+    seen = {}
+    body = lambda n: [
+        f"Clause {n}.{i}: the consultant shall do task number {n * 10 + i}."
+        for i in range(1, 9)
+    ]
+    pages = [page(i, *body(i), f"Page {i} of 6") for i in range(1, 7)]
+
+    def fake_extract_pages(path, **kwargs):
+        seen.update(kwargs)
+        return pages
+
+    monkeypatch.setattr(E, "load_pages", fake_extract_pages)
+    llm = FakeLLM({"identity": {"title": "Y"}})
+
+    E.ExtractionService(llm_service=llm).extract(Path("a.pdf"), mode="text")
+
+    assert seen["tables"] is True
+    sent = llm.parts[0]
+    assert "Clause 3.4" in sent and "Page 3 of 6" not in sent  # page stamps are gone
+
+
+def test_pages_emptied_by_cleaning_are_not_reported_as_scanned(monkeypatch):
+    pages = [
+        page(
+            i,
+            "Clause text that is long enough to be a real page " + str(i),
+            f"Page {i} of 6",
+        )
+        for i in range(1, 7)
+    ]
+    monkeypatch.setattr(E, "load_pages", lambda path, **kwargs: pages)
+
+    result = E.ExtractionService(llm_service=FakeLLM({})).extract(
+        Path("a.pdf"), mode="text"
+    )
+
+    assert not any(
+        "no text layer" in flag for flag in result.extraction.meta.review_flags
+    )
+
+
+# ---------------------------------------------------------------- RFP / NIT numbers are checked against the document
+
+
+def run_identifiers(
+    monkeypatch, model_identity, *page_texts, mode="text", read_fails=False
+):
+    pages = [page(i + 1, text) for i, text in enumerate(page_texts)]
+
+    def fake_extract_pages(path, **kwargs):
+        if read_fails and kwargs.get("max_pages"):
+            raise RuntimeError("cannot read")
+        return pages
+
+    monkeypatch.setattr(E, "load_pages", fake_extract_pages)
+    llm = FakeLLM({"identity": model_identity})
+    result = E.ExtractionService(llm_service=llm).extract(Path("a.pdf"), mode=mode)
+    return result.extraction.identity, result.extraction.meta.review_flags
+
+
+def test_a_number_the_model_missed_is_filled_from_the_label(monkeypatch):
+    identity, flags = run_identifiers(
+        monkeypatch, {"title": "T"}, "ITI Clusters\nRFP Ref. No.: 03/2026"
+    )
+
+    assert (
+        identity.rfp_number == "03/2026" and flags == []
+    )  # an automatic fix is logged, not flagged
+
+
+def test_the_unlabelled_letter_header_number_is_found(monkeypatch):
+    page_text = "Letter of Invitation (LOI)\nNHIDCL/DPR/Siliguri-Guwahati/2025-26/ Dated :\nDear Sir,"
+
+    identity, _ = run_identifiers(
+        monkeypatch, {"rfp_number": "NHIDCL/DPR/Siliguri-Guwahati/2025-26/"}, page_text
+    )
+
+    assert identity.rfp_number == "NHIDCL/DPR/Siliguri-Guwahati/2025-26"
+
+
+def test_a_title_around_the_number_is_reduced_to_the_number(monkeypatch):
+    page_text = "[TABLE]\nRFP Number | Software Development Services, IIITB/EHRC/2022/IT- 01, 25-Oct-2022\n[/TABLE]"
+    model = "Software Development Services, IIITB/EHRC/2022/IT-01, 25-Oct-2022"
+
+    identity, flags = run_identifiers(monkeypatch, {"rfp_number": model}, page_text)
+
+    assert identity.rfp_number == "IIITB/EHRC/2022/IT-01" and flags == []
+
+
+def test_a_made_up_number_is_replaced_by_the_labelled_one(monkeypatch):
+    identity, _ = run_identifiers(
+        monkeypatch, {"rfp_number": "04/2027"}, "RFP Ref. No.: 03/2026"
+    )
+
+    assert identity.rfp_number == "03/2026"
+
+
+def test_a_different_grounded_number_is_kept_and_flagged(monkeypatch):
+    text = "RFP Ref. No.: 03/2026\nPackage code NHAI/PKG/12/2026 is attached"
+
+    identity, flags = run_identifiers(
+        monkeypatch, {"rfp_number": "NHAI/PKG/12/2026"}, text
+    )
+
+    assert identity.rfp_number == "NHAI/PKG/12/2026"
+    assert any("differs" in flag for flag in flags)
+
+
+def test_a_number_that_is_nowhere_in_the_text_is_flagged(monkeypatch):
+    identity, flags = run_identifiers(
+        monkeypatch, {"rfp_number": "XYZ/9/2030"}, "no numbers here"
+    )
+
+    assert identity.rfp_number == "XYZ/9/2030"
+    assert any("was not found" in flag for flag in flags)
+
+
+def test_the_rfp_number_is_never_kept_as_a_nit_number(monkeypatch):
+    model = {
+        "rfp_number": "RFP/Bhopal-Kota/2025-26/efile-299153",
+        "nit_number": "RFP/ Bhopal- Kota/2025- 26/efile-299153",
+    }
+
+    identity, _ = run_identifiers(
+        monkeypatch, model, "RFP Document No.: RFP/ Bhopal-Kota/2025-26/efile-299153"
+    )
+
+    assert (
+        identity.rfp_number == "RFP/Bhopal-Kota/2025-26/efile-299153"
+        and identity.nit_number is None
+    )
+
+
+def test_references_are_tidied_even_when_there_is_nothing_to_compare(monkeypatch):
+    identity, flags = run_identifiers(
+        monkeypatch, {"rfp_number": "RFP/ Bhopal- Kota/2025-26/"}, "", mode="pdf"
+    )
+
+    assert (
+        identity.rfp_number == "RFP/Bhopal-Kota/2025-26" and flags == []
+    )  # no text, so no 'not found' flag
+
+
+def test_pdf_mode_reads_only_the_first_pages_for_the_check(monkeypatch):
+    seen = {}
+
+    def fake_extract_pages(path, **kwargs):
+        seen.update(kwargs)
+        return [page(1, "RFP Ref. No.: 03/2026")]
+
+    monkeypatch.setattr(E, "load_pages", fake_extract_pages)
+    llm = FakeLLM({"identity": {"title": "T"}})
+
+    result = E.ExtractionService(llm_service=llm).extract(Path("a.pdf"), mode="pdf")
+
+    assert seen["max_pages"] == 40 and llm.uploads  # Gemini still gets the whole PDF
+    assert result.extraction.identity.rfp_number == "03/2026"
+
+
+def test_pdf_mode_survives_a_failed_local_read(monkeypatch):
+    identity, flags = run_identifiers(
+        monkeypatch, {"rfp_number": "A/1/2025"}, "x", mode="pdf", read_fails=True
+    )
+
+    assert identity.rfp_number == "A/1/2025" and flags == []
+
+
+def test_fingerprint_changes_with_the_pipeline_version(monkeypatch):
+    service = E.ExtractionService(llm_service=FakeLLM({}))
+    first = service.fingerprint(Path("a.pdf"))
+
+    monkeypatch.setattr(E, "PIPELINE_VERSION", "99")
+
+    assert service.fingerprint(
+        Path("a.pdf")
+    ) != first and "|p99|" in service.fingerprint(Path("a.pdf"))
+
+
+# ---------------------------------------------------------------- unit fix: "5.00 Crores" copied as 5.0
+
+
+def test_a_bare_number_copied_from_a_crore_amount_gets_its_unit():
+    doc = TenderExtractionLLM.model_validate(
+        {
+            "qualification": {
+                "financial": [
+                    {
+                        "kind": "turnover",
+                        "label": "turnover",
+                        "basis": "absolute_amount",
+                        "value": 5.0,
+                        "raw_text": "Rs.5.00 Crores",
+                    },
+                    {
+                        "kind": "net_worth",
+                        "label": "net worth",
+                        "basis": "absolute_amount",
+                        "value": 75.0,
+                        "raw_text": "Rs 75 lakh",
+                    },
+                ]
+            }
+        }
+    )
+
+    notes = E.fill_derived(doc)
+
+    assert [t.value for t in doc.qualification.financial] == [50_000_000, 7_500_000]
+    assert len(notes) == 2 and "Rs.5.00 Crores" in notes[0]
+
+
+def test_amounts_that_are_already_right_or_have_no_unit_are_left_alone():
+    doc = TenderExtractionLLM.model_validate(
+        {
+            "qualification": {
+                "financial": [
+                    {
+                        "kind": "turnover",
+                        "label": "t",
+                        "basis": "absolute_amount",
+                        "value": 50_000_000,
+                        "raw_text": "Rs.5.00 Crores",
+                    },
+                    {
+                        "kind": "staff_strength",
+                        "label": "staff",
+                        "basis": "absolute_amount",
+                        "value": 500,
+                        "raw_text": "500 Cr employees",
+                    },
+                    {
+                        "kind": "turnover",
+                        "label": "pct",
+                        "basis": "pct_of_estimated_cost",
+                        "value": 3,
+                        "raw_text": "3 crore",
+                    },
+                ]
+            },
+            "project": {
+                "estimated_contract_value": {
+                    "value": 116400510,
+                    "raw_text": "Rs 11,64,00,510",
+                }
+            },
+        }
+    )
+
+    assert E.fill_derived(doc) == []
+    assert doc.qualification.financial[0].value == 50_000_000
+    assert (
+        doc.qualification.financial[1].value == 500
+        and doc.qualification.financial[2].value == 3
+    )
+    assert doc.project.estimated_contract_value.value == 116400510
+
+
+def test_project_amounts_get_the_same_unit_fix():
+    doc = TenderExtractionLLM.model_validate(
+        {"project": {"project_cost": {"value": 14.86, "raw_text": "₹ 14.86 Cr"}}}
+    )
+
+    E.fill_derived(doc)
+
+    assert doc.project.project_cost.value == pytest.approx(148_600_000)

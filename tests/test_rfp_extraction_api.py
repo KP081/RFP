@@ -222,6 +222,7 @@ def test_old_records_without_extraction_fields_still_load(env):
 
     assert info["extraction_status"] == "not_started" and info["status"] == "ready"
 
+
 def test_legacy_shape_of_the_stored_extraction(env):
     rfp_id = upload(env)["rfp_id"]
 

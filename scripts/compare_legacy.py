@@ -26,7 +26,14 @@ from pathlib import Path
 
 from app.services.legacy_adapter import to_legacy
 
-DEFAULT_SKIP = ("ExtractionSource", "ExtractionReviewFlags", "scoring_rules", "PersonnelSummary", "missing_fields", "extraction_confidence")
+DEFAULT_SKIP = (
+    "ExtractionSource",
+    "ExtractionReviewFlags",
+    "scoring_rules",
+    "PersonnelSummary",
+    "missing_fields",
+    "extraction_confidence",
+)
 EMPTY = (None, "", [], {})
 
 
@@ -37,7 +44,11 @@ def flatten(node, prefix: str = "") -> dict:
     if isinstance(node, dict):
         for key, value in node.items():
             out.update(flatten(value, f"{prefix}.{key}" if prefix else key))
-    elif isinstance(node, list) and node and all(isinstance(i, dict) and i.get("role") for i in node):
+    elif (
+        isinstance(node, list)
+        and node
+        and all(isinstance(i, dict) and i.get("role") for i in node)
+    ):
         for item in node:
             out.update(flatten(item, f"{prefix}[{item['role']}]"))
     else:
@@ -53,7 +64,9 @@ def norm(value):
         return float(value)
     if isinstance(value, str):
         text = " ".join(value.split()).lower()
-        if re.fullmatch(r"-?[\d,]*\.?\d+", text):  # "3500000" and 3500000 are the same figure
+        if re.fullmatch(
+            r"-?[\d,]*\.?\d+", text
+        ):  # "3500000" and 3500000 are the same figure
             return float(text.replace(",", ""))
         return text
     return json.dumps(value, sort_keys=True, ensure_ascii=False).lower()
@@ -73,10 +86,18 @@ def short(value, limit: int = 90) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("v12", type=Path, help="saved v1.2 extraction (data/extractions/*.json)")
-    parser.add_argument("legacy", type=Path, help="the other app's extraction of the same RFP")
-    parser.add_argument("--all", action="store_true", help="also list fields that are equal")
-    parser.add_argument("--skip", nargs="*", default=list(DEFAULT_SKIP), help="path parts to ignore")
+    parser.add_argument(
+        "v12", type=Path, help="saved v1.2 extraction (data/extractions/*.json)"
+    )
+    parser.add_argument(
+        "legacy", type=Path, help="the other app's extraction of the same RFP"
+    )
+    parser.add_argument(
+        "--all", action="store_true", help="also list fields that are equal"
+    )
+    parser.add_argument(
+        "--skip", nargs="*", default=list(DEFAULT_SKIP), help="path parts to ignore"
+    )
     args = parser.parse_args()
 
     new = flatten(to_legacy(json.loads(args.v12.read_text(encoding="utf-8"))))

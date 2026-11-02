@@ -58,6 +58,19 @@ class Settings(BaseSettings):
     extract_prompt_file: str = "extraction.txt"
     extract_max_output_tokens: int = 60000
     extract_repair_attempts: int = 1
+    parse_cache: bool = True
+    extract_tables: bool = (
+        True  # text mode: read PDF tables as "a | b | c" rows (pdfplumber)
+    )
+    extract_clean_text: bool = (
+        True  # text mode: drop signatures, TOC lines, page stamps, headers
+    )
+    identifier_capture: bool = (
+        True  # check rfp/nit numbers against the labels in the document
+    )
+    identifier_scan_pages: int = (
+        40  # numbers sit on the cover / data sheet: only the first N pages
+    )
 
     @property
     def max_upload_bytes(self) -> int:

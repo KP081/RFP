@@ -86,6 +86,7 @@ def get_extraction(rfp_id: str, service: RFPService = Depends(get_rfp_service)):
 def delete_rfp(rfp_id: str, service: RFPService = Depends(get_rfp_service)):
     service.delete(rfp_id)
 
+
 @router.get("/{rfp_id}/extraction/legacy")
 def get_extraction_legacy(rfp_id: str, service: RFPService = Depends(get_rfp_service)):
     """Same extraction in the HR/tender app's shape (RfpExtractionResponse)."""

@@ -5,6 +5,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+import math
 
 from app.core.config import get_settings
 from app.core.prompts import load_prompt
@@ -15,10 +16,18 @@ from app.schemas.extraction import (
     TenderExtraction,
     TenderExtractionLLM,
     ThresholdBasis,
+    ThresholdKind,
     is_iso_date,
 )
-from app.services.document_parser import extract_pages
+from app.services.identifier_capture import (
+    capture_identifiers,
+    normalise,
+    reconcile,
+    squash,
+)
 from app.services.llm_service import LLMService, Usage
+from app.services.page_cache import load_pages
+from app.services.text_cleaner import clean_pages
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +44,17 @@ DATE_FIELDS = (
 )
 
 NO_TEXT_CHARS = 30  # a page with fewer characters has no usable text layer
+
+# threshold kinds that are money (staff_strength / count are plain numbers: no unit fix)
+MONEY_KINDS = (
+    ThresholdKind.TURNOVER,
+    ThresholdKind.NET_WORTH,
+    ThresholdKind.PROJECT_VALUE,
+)
+
+# Bump it when the pipeline around the model changes (text reading, cleaning, identifier checks):
+# it is part of the cache key, so an old stored result is not served for a new pipeline.
+PIPELINE_VERSION = "2"
 
 
 @dataclass
@@ -59,14 +79,16 @@ class ExtractionService:
         started = time.time()
         flags: list[str] = []
         uploaded = None
+        raw_pages: list = []  # RAW text (before cleaning): the numbers are checked against it
 
         try:
             if mode == "pdf":
                 uploaded = self.llm_service.upload_file(file_path)
                 parts = [uploaded]
+                raw_pages = self._leading_pages(file_path)
             else:
-                pages = extract_pages(file_path)
-                parts = [self._pages_to_text(pages)]
+                pages = load_pages(file_path, tables=self.settings.extract_tables)
+                raw_pages = pages[: self.settings.identifier_scan_pages]
 
                 empty = [p.page_number for p in pages if len(p.text) < NO_TEXT_CHARS]
                 if empty:
@@ -75,6 +97,13 @@ class ExtractionService:
                         f"not read in text mode: {empty[:20]}"
                     )
 
+                if self.settings.extract_clean_text:
+                    cleaned = clean_pages(pages)
+                    logger.info("Text cleaner removed: %s", cleaned.counts())
+                    pages = cleaned.pages
+
+                parts = [self._pages_to_text(pages)]
+
             result = self.llm_service.generate_structured(
                 template, TenderExtractionLLM, parts=parts
             )
@@ -82,6 +111,7 @@ class ExtractionService:
             if uploaded is not None:
                 self.llm_service.delete_file(uploaded)
 
+        flags.extend(self._check_identifiers(result.data, raw_pages))
         flags.extend(fill_derived(result.data))
         flags.extend(consistency_flags(result.data))
 
@@ -115,7 +145,7 @@ class ExtractionService:
         prompt_hash = hashlib.sha256(template.encode("utf-8")).hexdigest()[:12]
         mode = self._resolve_mode(file_path, mode)
 
-        return f"{SCHEMA_VERSION}|{self.llm_service.model}|{prompt_hash}|{mode}"
+        return f"{SCHEMA_VERSION}|{self.llm_service.model}|{prompt_hash}|p{PIPELINE_VERSION}|{mode}"
 
     def _resolve_mode(self, file_path: Path, mode: str | None) -> str:
         mode = mode or self.settings.extract_context
@@ -133,12 +163,140 @@ class ExtractionService:
     def _pages_to_text(pages) -> str:
         return "\n\n".join(f"=== PAGE {p.page_number} ===\n{p.text}" for p in pages)
 
+    def _leading_pages(self, file_path: Path) -> list:
+        """pdf mode: Gemini reads the file itself, so the first pages are read locally only to
+        check the RFP / NIT numbers. A failure here must never fail the extraction."""
+        if not self.settings.identifier_capture:
+            return []
+
+        try:
+            return load_pages(
+                file_path,
+                tables=self.settings.extract_tables,
+                max_pages=self.settings.identifier_scan_pages,
+            )
+        except Exception:
+            logger.warning(
+                "Could not read the first pages for the identifier check", exc_info=True
+            )
+            return []
+
+    def _check_identifiers(self, doc: TenderExtractionLLM, pages: list) -> list[str]:
+        """Check the model's rfp_number / nit_number against the labels the document itself prints.
+
+        Returns review flags only for real doubts (a different grounded number, or a number that is
+        nowhere in the text). Automatic fixes (filled in, shortened to the labelled number) are logged.
+        """
+        flags: list[str] = []
+        identity = doc.identity
+        # nothing readable (a scanned PDF): "not found in the text" would be a false alarm
+        readable = any(p.text.strip() for p in pages)
+        capture = (
+            capture_identifiers(pages)
+            if readable and self.settings.identifier_capture
+            else None
+        )
+
+        for field, kind in (("rfp_number", "rfp"), ("nit_number", "nit")):
+            value = getattr(identity, field)
+
+            if capture is not None:
+                value, note = reconcile(value, capture, kind)
+
+                if note:
+                    logger.info("identifier check: %s", note)
+
+                    if "differs" in note or "was not found" in note:
+                        flags.append(note)
+
+            setattr(identity, field, _tidy_reference(value))
+
+        # an RFP number is never a NIT number (the model sometimes copies one into the other)
+        if (
+            identity.nit_number
+            and identity.rfp_number
+            and squash(identity.nit_number) == squash(identity.rfp_number)
+        ):
+            logger.info(
+                "identifier check: nit_number was a copy of rfp_number, cleared"
+            )
+            identity.nit_number = None
+
+        return flags
+
+
+def _tidy_reference(value: str | None) -> str | None:
+    """'RFP/ Bhopal- Kota/2025-26/' -> 'RFP/Bhopal-Kota/2025-26' (spaces around / and -, trailing /)."""
+    if not value or not value.strip():
+        return None
+
+    return normalise(value).rstrip("/ ") or None
+
 
 # ---------- derived values and free consistency checks (no LLM) ----------
 
 
 _TECHNICAL = re.compile(r"\b(technical|quality)\b", re.IGNORECASE)
 _FINANCIAL = re.compile(r"\b(financial|price|commercial)\b", re.IGNORECASE)
+_UNIT_AMOUNT = re.compile(
+    r"(?<![\d,])(?<!\d\.)(\d[\d,]*(?:\.\d+)?)\s*(crores?|cr\b\.?|lakhs?|lacs?)",
+    re.IGNORECASE,
+)
+_UNIT_FACTOR = {
+    "cr": 1e7,
+    "crore": 1e7,
+    "crores": 1e7,
+    "lakh": 1e5,
+    "lakhs": 1e5,
+    "lac": 1e5,
+    "lacs": 1e5,
+}
+
+
+def _amount_in_text(text: str | None) -> tuple[float, float] | None:
+    """'Rs.5.00 Crores' -> (5.0, 50000000.0): the bare number, and the number with its unit applied."""
+    match = _UNIT_AMOUNT.search(text or "")
+
+    if not match:
+        return None
+
+    number = float(match.group(1).replace(",", ""))
+    unit = match.group(2).lower().rstrip(".")
+
+    return number, number * _UNIT_FACTOR[unit]
+
+
+def fix_money_units(doc: TenderExtractionLLM) -> list[str]:
+    """The model sometimes copies the bare number ("5.00" from "Rs.5.00 Crores") into a money field that
+    must be in plain rupees. When raw_text names the unit and value is exactly the bare number, apply the
+    unit. Only fixes this one case; every other value is left alone. Returns notes for review_flags.
+    """
+    notes: list[str] = []
+
+    def check(obj, label: str) -> None:
+        found = _amount_in_text(obj.raw_text)
+
+        if obj.value is None or found is None:
+            return
+
+        bare, full = found
+
+        if math.isclose(obj.value, bare, rel_tol=1e-9) and not math.isclose(bare, full):
+            notes.append(
+                f"{label}: value {obj.value:g} is the bare number of '{obj.raw_text}'; "
+                f"unit applied -> {full:,.0f}"
+            )
+            obj.value = full
+
+    for item in doc.qualification.financial:
+        if item.basis == ThresholdBasis.ABSOLUTE_AMOUNT and item.kind in MONEY_KINDS:
+            check(item, f"qualification.financial[{item.label}]")
+
+    check(doc.project.estimated_contract_value, "project.estimated_contract_value")
+    check(doc.project.project_cost, "project.project_cost")
+    check(doc.securities.document_fee, "securities.document_fee")
+
+    return notes
 
 
 def fill_derived(doc: TenderExtractionLLM) -> list[str]:
@@ -150,7 +308,7 @@ def fill_derived(doc: TenderExtractionLLM) -> list[str]:
     2. The model sometimes files the technical or financial weight under weights.other.
        If technical_pct / financial_pct is empty, move that entry up (and say so).
     """
-    notes: list[str] = []
+    notes: list[str] = fix_money_units(doc)
 
     section = doc.key_personnel
     if section.key_person_months_total is None:

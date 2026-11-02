@@ -388,3 +388,10 @@ def test_one_column_table_is_plain_text_but_two_columns_stay_a_table(tmp_path):
     assert "Item | Marks" in text
     assert "First point" in text and "Second point" in text
     assert text.index("Second point") < text.index(TABLE_START)
+
+
+def test_max_pages_reads_only_the_first_pages(sample_pdf):
+    # the identifier check only needs the cover / data sheet, not all 380 pages
+    assert len(extract_pages(sample_pdf, tables=True, max_pages=1)) == 1
+    assert len(extract_pages(sample_pdf, tables=False, max_pages=2)) == 2
+    assert len(extract_pages(sample_pdf, tables=True)) == 3  # default: all pages
