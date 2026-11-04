@@ -40,6 +40,47 @@ _RETRY_IN = re.compile(
 )
 
 
+def _first_json_object(text: str) -> str:
+    """Keep only the first complete JSON object of the model's text.
+
+    The model sometimes adds words or a second copy after the object ("trailing characters").
+    That is not a content error, so no repair call is needed.
+
+    One case must NOT be handled by "take the first object": a stray closing brace that ends the
+    root object too early while more keys follow (`..."}}, "contract": {...}`). The first object
+    is valid JSON, but using it would silently drop every key after the brace. There the brace is
+    moved to the end instead. Anything else that does not parse is returned unchanged, so the
+    normal validation error (and the repair call) still happens.
+    """
+    start = text.find("{")
+
+    if start == -1:
+        return text
+
+    decoder = json.JSONDecoder()
+
+    try:
+        _, end = decoder.raw_decode(text, start)
+    except ValueError:
+        return text
+
+    rest = text[end:].lstrip()
+
+    if not rest.startswith(","):
+        return text[start:end]
+
+    merged = text[start : end - 1] + rest  # drop the early closing brace of the root
+
+    try:
+        _, merged_end = decoder.raw_decode(merged)
+    except ValueError:
+        return text
+
+    if merged[merged_end:].lstrip().startswith(","):
+        return text
+
+    return merged[:merged_end]
+
 def _rate_limit_wait(message: str) -> float | None:
     """Seconds to wait if this error is a per-minute rate limit (429), else None.
 
@@ -265,16 +306,24 @@ class LLMService:
         rate_attempt = 0
         transient_attempt = 0
 
+        config_args = {
+            "temperature": self.temperature,
+            "response_mime_type": "application/json",
+            "max_output_tokens": max_output_tokens,
+        }
+        thinking_level = getattr(settings, "gemini_thinking_level", None)
+        if thinking_level:
+            config_args["thinking_config"] = types.ThinkingConfig(
+                thinking_level=thinking_level
+            )
+        config = types.GenerateContentConfig(**config_args)
+
         while True:
             try:
                 response = self.client.models.generate_content(
                     model=self.model,
                     contents=contents,
-                    config=types.GenerateContentConfig(
-                        temperature=self.temperature,
-                        response_mime_type="application/json",
-                        max_output_tokens=max_output_tokens,
-                    ),
+                    config=config
                 )
                 break
             except Exception as e:
@@ -322,7 +371,7 @@ class LLMService:
 
     @staticmethod
     def _parse(text: str, schema: type[BaseModel]):
-        cleaned = _FENCE.sub("", text.strip())
+        cleaned = _first_json_object(_FENCE.sub("", text.strip()))
 
         try:
             return schema.model_validate_json(cleaned), None

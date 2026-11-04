@@ -53,6 +53,7 @@ class Settings(BaseSettings):
     gemini_timeout_s: int = 600
     gemini_rate_limit_retries: int = 3
     gemini_transient_retries: int = 3  # 500/503/UNAVAILABLE/timeouts
+    gemini_thinking_level: str | None = None  # Gemini 3.x: LOW | MEDIUM | HIGH; None = model default
 
     # ---- Extraction ----
     extract_context: Literal["pdf", "text"] = "pdf"

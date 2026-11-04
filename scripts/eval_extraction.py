@@ -322,7 +322,7 @@ def main() -> None:
                 + (u.output_tokens + u.thinking_tokens) * PRICE_OUT_PER_M
             ) / 1_000_000
             usage_text = (
-                f"{result.seconds:.0f}s, {u.prompt_tokens:,} in / {u.output_tokens:,} out tokens, "
+                f"{result.seconds:.0f}s, {u.prompt_tokens:,} in / {u.output_tokens:,} out / {u.thinking_tokens:,} think tokens, "
                 f"~${cost:.3f}, repairs={result.repairs}"
             )
 
