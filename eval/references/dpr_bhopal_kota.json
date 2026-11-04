@@ -203,6 +203,68 @@
       "path": "contract.delay_damages[kind=liquidated_damages].rate_text",
       "contains": "monthly bill",
       "page": 71
+    },
+    {
+      "path": "evaluation.criteria[name~Profile].sub_criteria#len",
+      "expect": 2,
+      "page": 282,
+      "note": "A1: key professionals (3) + turnover (2)"
+    },
+    {
+      "path": "evaluation.criteria[name~Profile].sub_criteria[0].max_points",
+      "expect": 3,
+      "page": 282
+    },
+    {
+      "path": "evaluation.criteria[name~Profile].sub_criteria[0].bands#len",
+      "expect": 5,
+      "page": 282,
+      "note": "1.1-1.5"
+    },
+    {
+      "path": "evaluation.criteria[name~Profile].sub_criteria[0].bands[1].points",
+      "expect": 1.5,
+      "page": 282,
+      "note": "1.2 '>10 but <=20'"
+    },
+    {
+      "path": "evaluation.criteria[name~Profile].sub_criteria[1].bands#len",
+      "expect": 4,
+      "page": 283,
+      "note": "2.1-2.4 turnover bands"
+    },
+    {
+      "path": "evaluation.criteria[name~relevant experience in last 10].sub_criteria#len",
+      "min": 2,
+      "page": 283,
+      "note": "A2 nests 4 levels in the document, schema has 3"
+    },
+    {
+      "path": "evaluation.criteria[name~Material testing].sub_criteria#len",
+      "expect": 6,
+      "page": 285
+    },
+    {
+      "path": "evaluation.criteria[name~Material testing].sub_criteria[3].bands#len",
+      "expect": 5,
+      "page": 285,
+      "note": "LiDAR: 1 project .. >=5 projects"
+    },
+    {
+      "path": "evaluation.criteria[name~Material testing].sub_criteria[5].bands[2].points",
+      "expect": 0.5,
+      "page": 285,
+      "note": "6.3 'Area > 500 ha'"
+    },
+    {
+      "path": "evaluation.criteria[name~technology for road inspection].sub_criteria#len",
+      "min": 3,
+      "page": 286
+    },
+    {
+      "path": "evaluation.criteria[name~technology for road inspection].sub_criteria[1].max_points",
+      "expect": 0.5,
+      "page": 286
     }
   ]
 }
