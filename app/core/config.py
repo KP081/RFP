@@ -52,6 +52,7 @@ class Settings(BaseSettings):
     no_answer_message: str = "I could not find relevant information in the document."
     gemini_timeout_s: int = 600
     gemini_rate_limit_retries: int = 3
+    gemini_transient_retries: int = 3  # 500/503/UNAVAILABLE/timeouts
 
     # ---- Extraction ----
     extract_context: Literal["pdf", "text"] = "pdf"

@@ -57,6 +57,34 @@ def _rate_limit_wait(message: str) -> float | None:
     return min(seconds + 3, 120.0)
 
 
+_TRANSIENT_STATUS = re.compile(
+    r"\b(?:UNAVAILABLE|INTERNAL|DEADLINE_EXCEEDED)\b|^\s*(?:500|502|503|504)\b"
+)
+_TRANSIENT_TEXT = re.compile(
+    r"timed? ?out|timeout|connection (?:reset|aborted|error|refused)"
+    r"|server disconnected|remote(?:ly)? (?:protocol|disconnected)",
+    re.IGNORECASE,
+)
+_TRANSIENT_TYPES = ("Timeout", "ConnectError", "RemoteProtocolError")
+_BACKOFF_SECONDS = (5.0, 15.0, 45.0)
+
+
+def _transient_wait(error: Exception, attempt: int) -> float | None:
+    message = str(error)
+    name = type(error).__name__
+
+    transient = (
+        bool(_TRANSIENT_STATUS.search(message))
+        or bool(_TRANSIENT_TEXT.search(message))
+        or any(word in name for word in _TRANSIENT_TYPES)
+    )
+
+    if not transient:
+        return None
+
+    return _BACKOFF_SECONDS[min(attempt, len(_BACKOFF_SECONDS) - 1)]
+
+
 def lean_json_schema(model: type[BaseModel]) -> dict:
     """Pydantic model -> plain JSON schema: $refs inlined, constraints removed."""
     schema = model.model_json_schema()
@@ -231,8 +259,11 @@ class LLMService:
         return StructuredResult(data=data, usage=usage, repairs=repairs)
 
     def _call(self, contents: list, max_output_tokens: int, usage: Usage) -> str:
-        retries = getattr(get_settings(), "gemini_rate_limit_retries", 3)
-        attempt = 0
+        settings = get_settings()
+        rate_retries = getattr(settings, "gemini_rate_limit_retries", 3)
+        transient_retries = getattr(settings, "gemini_transient_retries", 3)
+        rate_attempt = 0
+        transient_attempt = 0
 
         while True:
             try:
@@ -249,17 +280,33 @@ class LLMService:
             except Exception as e:
                 wait = _rate_limit_wait(str(e))
 
-                if wait is None or attempt >= retries:
-                    raise LLMError(f"LLM request failed: {e}") from e
+                if wait is not None and rate_attempt < rate_retries:
+                    rate_attempt += 1
+                    logger.warning(
+                        "Rate limited (429). Waiting %.0fs, retry %d/%d",
+                        wait,
+                        rate_attempt,
+                        rate_retries,
+                    )
+                    time.sleep(wait)
+                    continue
 
-                attempt += 1
-                logger.warning(
-                    "Rate limited (429). Waiting %.0fs, retry %d/%d",
-                    wait,
-                    attempt,
-                    retries,
-                )
-                time.sleep(wait)
+                if wait is None:
+                    delay = _transient_wait(e, transient_attempt)
+
+                    if delay is not None and transient_attempt < transient_retries:
+                        transient_attempt += 1
+                        logger.warning(
+                            "Temporary LLM error (%s). Waiting %.0fs, retry %d/%d",
+                            str(e)[:120],
+                            delay,
+                            transient_attempt,
+                            transient_retries,
+                        )
+                        time.sleep(delay)
+                        continue
+
+                raise LLMError(f"LLM request failed: {e}") from e
 
         usage.add(response.usage_metadata)
 
