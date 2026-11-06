@@ -19,6 +19,11 @@ from app.schemas.extraction import (
     ThresholdKind,
     is_iso_date,
 )
+from app.services.evidence_selector import (
+    SELECTOR_VERSION,
+    render_evidence,
+    select_evidence,
+)
 from app.services.identifier_capture import (
     capture_identifiers,
     normalise,
@@ -27,6 +32,7 @@ from app.services.identifier_capture import (
 )
 from app.services.llm_service import LLMService, Usage
 from app.services.page_cache import load_pages
+from app.services.rag_chunker import chunk_pages_for_extraction
 from app.services.text_cleaner import clean_pages
 
 logger = logging.getLogger(__name__)
@@ -80,6 +86,7 @@ class ExtractionService:
         flags: list[str] = []
         uploaded = None
         raw_pages: list = []  # RAW text (before cleaning): the numbers are checked against it
+        rag_pages: list[int] = []  # rag mode: pages that were sent
 
         try:
             if mode == "pdf":
@@ -102,7 +109,12 @@ class ExtractionService:
                     logger.info("Text cleaner removed: %s", cleaned.counts())
                     pages = cleaned.pages
 
-                parts = [self._pages_to_text(pages)]
+                if mode == "rag":
+                    text, rag_pages = self._rag_text(pages)
+                else:
+                    text = self._pages_to_text(pages)
+
+                parts = [text]
 
             result = self.llm_service.generate_structured(
                 template, TenderExtractionLLM, parts=parts
@@ -122,6 +134,7 @@ class ExtractionService:
             model=self.llm_service.model,
             prompt_hash=hashlib.sha256(template.encode("utf-8")).hexdigest()[:12],
             extracted_at=datetime.now(timezone.utc).isoformat(),
+            pages_used={"rag_evidence": rag_pages} if rag_pages else {},
         )
 
         extraction = TenderExtraction.model_validate(
@@ -145,12 +158,19 @@ class ExtractionService:
         prompt_hash = hashlib.sha256(template.encode("utf-8")).hexdigest()[:12]
         mode = self._resolve_mode(file_path, mode)
 
-        return f"{SCHEMA_VERSION}|{self.llm_service.model}|{prompt_hash}|p{PIPELINE_VERSION}|{mode}"
+        suffix = ""
+        if mode == "rag":
+            suffix = (
+                f"-s{SELECTOR_VERSION}-{self.settings.extract_rag_budget_chars}"
+                f"-{self.settings.extract_rag_chunk_chars}"
+            )
+
+        return f"{SCHEMA_VERSION}|{self.llm_service.model}|{prompt_hash}|p{PIPELINE_VERSION}|{mode}{suffix}"
 
     def _resolve_mode(self, file_path: Path, mode: str | None) -> str:
         mode = mode or self.settings.extract_context
 
-        if mode not in ("pdf", "text"):
+        if mode not in ("pdf", "text", "rag"):
             raise ValueError(f"Unknown extraction mode: {mode}")
 
         # Gemini reads PDFs natively; DOCX goes through the text parser.
@@ -158,6 +178,27 @@ class ExtractionService:
             return "text"
 
         return mode
+
+    def _rag_text(self, pages) -> tuple[str, list[int]]:
+        """Big RFP: the excerpts the schema asks for (one call). Small RFP: everything, as in text mode."""
+        chunks = chunk_pages_for_extraction(
+            pages, self.settings.extract_rag_chunk_chars
+        )
+        selection = select_evidence(chunks, self.settings.extract_rag_budget_chars)
+
+        logger.info(
+            "RAG evidence: %d of %d chars, %d of %d chunks, %d pages",
+            selection.chars,
+            selection.total_chars,
+            len(selection.chunks),
+            len(chunks),
+            len(selection.pages),
+        )
+
+        if selection.chars >= selection.total_chars:
+            return self._pages_to_text(pages), []
+
+        return render_evidence(selection), selection.pages
 
     @staticmethod
     def _pages_to_text(pages) -> str:

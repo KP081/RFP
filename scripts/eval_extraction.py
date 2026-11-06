@@ -264,7 +264,7 @@ def short(value, limit: int = 70) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["pdf", "text"], default="pdf")
+    parser.add_argument("--mode", choices=["pdf", "text", "rag"], default="pdf")
     parser.add_argument(
         "--saved", action="store_true", help="score saved outputs, no API calls"
     )

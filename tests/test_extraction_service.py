@@ -653,3 +653,57 @@ def test_project_amounts_get_the_same_unit_fix():
     E.fill_derived(doc)
 
     assert doc.project.project_cost.value == pytest.approx(148_600_000)
+
+
+# ---------------------------------------------------------------- rag mode
+
+
+def _big_pages(count=60):
+    filler = lambda n: " ".join(f"zorblat{n}x{k} quillfeather{k}" for k in range(120))
+    special = {7: "Bid Security: earnest money deposit Rs 200000 as bank guarantee."}
+    return [page(i, special.get(i, filler(i))) for i in range(1, count + 1)]
+
+
+def test_rag_mode_sends_selected_excerpts_and_records_the_pages(monkeypatch):
+    monkeypatch.setattr(E, "load_pages", lambda path, **kwargs: _big_pages())
+    llm = FakeLLM({"identity": {"title": "Z"}})
+    service = E.ExtractionService(llm_service=llm)
+    monkeypatch.setattr(service.settings, "extract_rag_budget_chars", 12_000)
+
+    result = service.extract(Path("a.pdf"), mode="rag")
+
+    sent = llm.parts[0]
+    assert result.mode == "rag" and not llm.uploads  # the PDF itself is not uploaded
+    assert sent.startswith("SELECTED EXCERPTS") and "=== PAGE 7 ===" in sent
+    assert len(sent) < 20_000
+    assert 7 in result.extraction.meta.pages_used["rag_evidence"]
+
+
+def test_rag_mode_on_a_small_document_sends_everything_like_text_mode(monkeypatch):
+    monkeypatch.setattr(E, "load_pages", lambda path, **kwargs: _big_pages(3))
+    llm = FakeLLM({"identity": {"title": "Z"}})
+
+    result = E.ExtractionService(llm_service=llm).extract(Path("a.pdf"), mode="rag")
+
+    assert "SELECTED EXCERPTS" not in llm.parts[0] and "=== PAGE 3 ===" in llm.parts[0]
+    assert result.extraction.meta.pages_used == {}
+
+
+def test_docx_stays_in_text_mode_even_when_rag_is_asked(monkeypatch):
+    monkeypatch.setattr(E, "load_pages", lambda path, **kwargs: [])
+
+    result = E.ExtractionService(llm_service=FakeLLM({})).extract(
+        Path("a.docx"), mode="rag"
+    )
+
+    assert result.mode == "text"
+
+
+def test_rag_fingerprint_follows_budget_and_chunk_size(monkeypatch):
+    service = E.ExtractionService(llm_service=FakeLLM({}))
+    first = service.fingerprint(Path("a.pdf"), mode="rag")
+
+    assert "|rag-s" in first
+    monkeypatch.setattr(service.settings, "extract_rag_budget_chars", 99_000)
+    assert service.fingerprint(Path("a.pdf"), mode="rag") != first
+    assert service.fingerprint(Path("a.pdf"), mode="text").endswith("|text")

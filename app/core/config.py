@@ -53,10 +53,12 @@ class Settings(BaseSettings):
     gemini_timeout_s: int = 600
     gemini_rate_limit_retries: int = 3
     gemini_transient_retries: int = 3  # 500/503/UNAVAILABLE/timeouts
-    gemini_thinking_level: str | None = None  # Gemini 3.x: LOW | MEDIUM | HIGH; None = model default
+    gemini_thinking_level: str | None = (
+        None  # Gemini 3.x: LOW | MEDIUM | HIGH; None = model default
+    )
 
     # ---- Extraction ----
-    extract_context: Literal["pdf", "text"] = "pdf"
+    extract_context: Literal["pdf", "text", "rag"] = "pdf"
     extract_prompt_file: str = "extraction.txt"
     extract_max_output_tokens: int = 60000
     extract_repair_attempts: int = 1
@@ -73,6 +75,10 @@ class Settings(BaseSettings):
     identifier_scan_pages: int = (
         40  # numbers sit on the cover / data sheet: only the first N pages
     )
+    extract_rag_budget_chars: int = (
+        160_000  # rag mode: size of the evidence sent to the model
+    )
+    extract_rag_chunk_chars: int = 1500
 
     @property
     def max_upload_bytes(self) -> int:

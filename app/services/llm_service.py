@@ -81,6 +81,7 @@ def _first_json_object(text: str) -> str:
 
     return merged[:merged_end]
 
+
 def _rate_limit_wait(message: str) -> float | None:
     """Seconds to wait if this error is a per-minute rate limit (429), else None.
 
@@ -321,9 +322,7 @@ class LLMService:
         while True:
             try:
                 response = self.client.models.generate_content(
-                    model=self.model,
-                    contents=contents,
-                    config=config
+                    model=self.model, contents=contents, config=config
                 )
                 break
             except Exception as e:
