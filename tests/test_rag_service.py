@@ -1,7 +1,7 @@
 from app.services.rag_service import RAGService
 
 
-RFP_ID = "a9378dcd-8470-4843-a963-de558c32f7bc"
+RFP_ID = "c41b1645-96b3-46ae-b0d2-4830f272d1fe"
 
 
 def test_rag_answer():

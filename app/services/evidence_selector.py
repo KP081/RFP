@@ -19,16 +19,19 @@ import re
 from collections import Counter
 from dataclasses import dataclass
 
+from app.services.document_parser import TABLE_END, TABLE_START
 from app.services.rag_chunker import EvidenceChunk
 
 DEFAULT_BUDGET_CHARS = 160_000
 SELECTOR_VERSION = (
-    "1"  # bump when queries / scoring change: it is part of the extraction cache key
+    "2"  # bump when queries / scoring change: it is part of the extraction cache key
 )
 SEED_SHARE = 0.6  # part of a group's quota spent on its best chunks; the rest on their neighbours
 KEYWORD_BONUS = 0.3  # per matching pattern, at most 3 patterns count
 MIN_SCORE = 0.5  # a chunk must score this much to use its group's protected share
-
+CHAIN_LIMIT = 4  # a table that continues in the next chunks: follow at most this many of them
+# a sentence that introduces a table: "... as per the schedule given below:"
+_LEAD_IN = re.compile(r"(?:below|following|as follows|as under|hereunder)\s*[:.\-]?\s*$", re.IGNORECASE)
 
 @dataclass(frozen=True)
 class QueryGroup:
@@ -260,6 +263,23 @@ def _group_scores(
 
     return best
 
+def _table_chain(chunks: list[EvidenceChunk], i: int, limit: int = CHAIN_LIMIT) -> list[int]:
+    """The chunks after chunk i that continue a table which chunk i introduces ("... given below:")
+    or ends with: the next chunks, as long as they start with [TABLE]. A sentence that says "as per
+    the schedule below" is worthless without the table under it, and a table often runs over
+    several chunks and over the page break."""
+    tail = chunks[i].text.rstrip()
+    if not (_LEAD_IN.search(tail) or tail.endswith(TABLE_END)):
+        return []
+
+    chain: list[int] = []
+    j = i + 1
+
+    while j < len(chunks) and len(chain) < limit and chunks[j].text.startswith(TABLE_START):
+        chain.append(j)
+        j += 1
+
+    return chain
 
 def _pick(
     chunks: list[EvidenceChunk],
@@ -300,7 +320,11 @@ def _pick(
         if add(i):
             seeds.append(i)
 
-    for i in seeds:  # best seeds first
+    for i in seeds:  # best seeds first: the table under a lead-in sentence comes first ...
+        for j in _table_chain(chunks, i):
+            add(j)
+
+    for i in seeds:  # ... then the plain neighbours
         for j in (i - 1, i + 1):
             if 0 <= j < len(chunks):
                 add(j)
